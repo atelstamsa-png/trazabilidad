@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+
+
+
+<html lang="es">
+
+
+
+<head>
+
+
+
+<meta charset="UTF-8">
+
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+
+
+<title>MENU — Gestión de Juntas</title>
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="./css/style.css">
+
+
+
+<link rel="manifest" href="manifest.json">
+
+
+
+<link rel="apple-touch-icon" href="./assets/icon.svg">
+<link rel="icon" href="./assets/icon.svg">
+
+
+
+<script src="./js/jsQR.min.js" onload="console.log('jsQR Local Loaded OK')" onerror="window.jsQRError=true"></script>
+
+
+
+<script src="./js/qrious.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+
+
+
+
+<div class="phone">
+
+
+
+
+
+
+
+  <!-- HEADER -->
+
+
+
+  <div class="header">
+
+
+
+    <div class="header-top">
+
+
+
+      <div class="header-left">
+
+
+
+        <div style="padding-left: 8px;">
+
+
+
+          <div class="app-subtitle" onclick="handleDebugTap()" style="cursor:help">SEGUIMIENTO DE SOLDADURA <span style="font-size:8px;opacity:0.5;margin-left:5px">v1.3.7</span></div>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <div class="header-actions">
+
+
+
+        <button class="btn-icon" onclick="syncNow()" id="syncNowBtn" title="Sincronizar ahora">
+
+          <svg viewBox="0 0 24 24"><path d="M12 3v8"/><polyline points="9 6 12 3 15 6"/><path d="M12 21v-8"/><polyline points="9 18 12 21 15 18"/></svg>
+
+        </button>
+
+        <button class="btn-icon" onclick="refreshMain()" id="refreshBtn" title="Actualizar">
+
+
+
+          <!-- refresh -->
+
+
+
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- SEARCH -->
+
+
+
+    <div class="search-wrap">
+
+
+
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+
+
+
+      <input class="search-input" id="mainSearchInput" type="text" placeholder="Buscar por área...">
+
+
+
+      <button class="qr-btn" title="Escanear QR" onclick="openQRScanner()">
+
+
+
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+
+
+
+      </button>
+
+
+
+    </div>
+
+    <div id="syncStatus" class="sync-status">Sincronizando...</div>
+
+  </div>
+
+  <!-- STATS -->
+
+
+
+  <div class="stats-strip">
+
+
+
+    <div class="stat-card">
+
+
+
+      <div class="stat-value">19</div>
+
+
+
+      <div class="stat-label">Áreas</div>
+
+
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+
+
+      <div class="stat-value">13.3K</div>
+
+
+
+      <div class="stat-label">Total Pulgadas</div>
+
+
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+
+
+      <div class="stat-value">—</div>
+
+
+
+      <div class="stat-label">PULG. POR SOLDAR</div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+  <!-- DASHBOARD -->
+  <div class="dashboard-panel">
+    <div class="dashboard-title">Dashboard</div>
+    <div class="dashboard-kpis">
+      <div class="dashboard-kpi">
+        <div class="kpi-label">Total Ø</div>
+        <div class="kpi-value" id="kpi-total">0</div>
+      </div>
+      <div class="dashboard-kpi">
+        <div class="kpi-label">Soldado Ø</div>
+        <div class="kpi-value kpi-ok" id="kpi-ok">0</div>
+      </div>
+      <div class="dashboard-kpi">
+        <div class="kpi-label">Juntas</div>
+        <div class="kpi-value kpi-nok" id="kpi-nok">0</div>
+      </div>
+      <div class="dashboard-kpi">
+        <div class="kpi-label">Pendiente Ø</div>
+        <div class="kpi-value kpi-pending" id="kpi-pending">0</div>
+      </div>
+    </div>
+    <div class="dashboard-charts">
+      <div class="chart-card">
+        <div class="chart-title">Diametro Soldado Vs Pendiente</div>
+        <canvas id="chartEstados" height="180"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Diametro Soldado Por Fecha</div>
+        <canvas id="chartProduccion" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION HEADER -->
+
+
+
+  <div class="section-header">
+
+
+
+    <span class="section-title">RESUMEN DE ÁREAS</span>
+
+
+
+    <button class="filter-btn" onclick="toggleFilter('main')">
+
+
+
+      <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+
+
+
+      Filtrar
+
+
+
+    </button>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- LIST -->
+
+
+
+  <div class="list-scroll" id="mainList">
+
+
+
+    <!-- generado dinámicamente -->
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- FAB -->
+
+
+
+  <button class="fab" title="Nueva Junta" onclick="openFormNew()">
+
+
+
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+
+
+
+  </button>
+
+
+
+
+
+
+
+  <!-- BOTTOM NAV -->
+
+
+
+  <div class="bottom-nav">
+
+
+
+    <div class="nav-item active">
+
+
+
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+
+
+
+      <span class="nav-label">Menú</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="toggleFilter('main')">
+
+
+
+      <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+
+
+
+      <span class="nav-label">Filtrar</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="openQRScanner()">
+
+
+
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+
+
+
+      <span class="nav-label">QR</span>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+</div><!-- /phone -->
+
+
+
+
+
+
+
+<!-- DETAIL SCREEN -->
+
+
+
+<div class="screen" id="detailScreen">
+
+
+
+
+
+
+
+  <div class="detail-header">
+
+
+
+    <div class="detail-nav">
+
+
+
+      <button class="back-btn" onclick="closeDetail()">
+
+
+
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+
+
+
+        Áreas
+
+
+
+      </button>
+
+
+
+      <div style="display:flex;gap:8px">
+
+
+
+        <button class="btn-icon" id="detailSearchBtn" onclick="toggleDetailSearch()" title="Buscar">
+
+
+
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+
+
+
+        </button>
+
+
+
+        <button class="btn-icon" title="Filtrar" onclick="toggleFilter('detail')">
+
+
+
+          <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Inline search bar (hidden by default) -->
+
+
+
+    <div id="detailSearchBar" style="display:none;margin-top:10px;position:relative;z-index:1">
+
+
+
+      <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;stroke:rgba(255,255,255,.5);fill:none;stroke-width:2;stroke-linecap:round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+
+
+
+      <input id="detailSearchInput" type="text"
+
+
+
+        placeholder="Buscar por número de línea... "
+
+
+
+        oninput="onDetailSearch(this.value)"
+
+
+
+        style="width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:10px;padding:9px 36px 9px 34px;color:#fff;font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;">
+
+
+
+      <button onclick="clearDetailSearch()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;line-height:1">×</button>
+
+
+
+    </div>
+
+
+
+    <div class="detail-area-hero">
+
+
+
+      <div class="detail-area-label">ÁREA</div>
+
+
+
+      <div class="detail-area-code" id="detailAreaCode">300</div>
+
+
+
+      <div class="detail-area-sub" id="detailAreaSub">12 juntas · Ø total 3,633.75</div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- SUMMARY CARDS -->
+
+
+
+  <div class="detail-stats">
+
+
+
+    <div class="detail-stat">
+
+
+
+      <div class="detail-stat-val" id="ds-juntas">12</div>
+
+
+
+      <div class="detail-stat-lbl">Juntas</div>
+
+
+
+    </div>
+
+
+
+    <div class="detail-stat">
+
+
+
+      <div class="detail-stat-val" id="ds-pulgadas">3,633</div>
+
+
+
+      <div class="detail-stat-lbl">Total Pulgadas</div>
+
+
+
+    </div>
+
+
+
+    <div class="detail-stat">
+
+
+
+      <div class="detail-stat-val" id="ds-soldadas">8</div>
+
+
+
+      <div class="detail-stat-lbl">PULG. POR SOLDAR</div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <div class="junta-section-title">LÍNEAS · SPOOLS · JUNTAS</div>
+
+
+
+
+
+
+
+  <div class="detail-scroll" id="detailList">
+
+
+
+    <!-- generado dinámicamente por JS -->
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <!-- FAB -->
+
+
+
+  <button class="fab" style="right:16px" title="Nueva Junta" onclick="openFormNew()">
+
+
+
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+
+
+
+  </button>
+
+
+
+
+
+
+
+  <!-- BOTTOM NAV (same) -->
+
+
+
+  <div class="bottom-nav">
+
+
+
+    <div class="nav-item" onclick="closeDetail()">
+
+
+
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+
+
+
+      <span class="nav-label">Menú</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="toggleFilter('detail')">
+
+
+
+      <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+
+
+
+      <span class="nav-label">Filtrar</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="openQRScanner()">
+
+
+
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+
+
+
+      <span class="nav-label">QR</span>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+</div><!-- /detailScreen -->
+
+
+
+
+
+
+
+<!-- EDIT / VIEW JUNTA SCREEN -->
+
+
+
+<div class="screen" id="editScreen" style="z-index:20">
+
+
+
+
+
+
+
+  <div class="edit-header">
+
+
+
+    <div class="edit-nav">
+
+
+
+      <button class="back-btn" onclick="closeEdit()">
+
+
+
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+
+
+
+        Volver
+
+
+
+      </button>
+
+
+
+      <div class="edit-nav-right">
+
+
+
+        <button class="btn-icon-qr" title="Ver QR" onclick="openQR()">
+
+
+
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+
+
+
+        </button>
+
+
+
+        <button class="btn-icon-danger" title="Eliminar" onclick="confirmDelete()">
+
+
+
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+
+
+
+        </button>
+
+
+
+        <button class="btn-icon" title="Refrescar" onclick="refreshMain()">
+
+
+
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+    <div class="edit-title-block">
+
+
+
+      <div class="edit-mode-label">EDITAR JUNTA</div>
+
+
+
+      <div class="edit-junta-id" id="editJuntaId">Junta 6 · Spool 1</div>
+
+
+
+      <div class="edit-junta-sub" id="editJuntaSub">ÁREA 300 · LÍNEA 300-001</div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <div class="edit-scroll">
+
+
+
+
+
+
+
+    <!-- Identificación -->
+
+
+
+    <div class="fields-card" style="animation-delay:.03s">
+
+
+
+      <div class="fields-card-title">Identificación</div>
+
+
+
+      <div class="field-row">
+
+
+
+        <span class="field-label">ÁREA</span>
+
+
+
+        <span class="field-value" id="ef-area">300</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">LÍNEA N°</span>
+
+
+
+        <span class="field-value" id="ef-linea">300-001</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">SPOOL</span>
+
+
+
+        <span class="field-value" id="ef-spool">1</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">JUNTA N°</span>
+
+
+
+        <span class="field-value" id="ef-junta">6</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">DIÁMETRO</span>
+
+
+
+        <span class="field-value" id="ef-diam">1.00</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Soldadura -->
+
+
+
+    <div class="fields-card" style="animation-delay:.06s">
+
+
+
+      <div class="fields-card-title">Soldadura</div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">FECHA DE SOLDADURA</span>
+
+
+
+        <span class="field-value" id="ef-fecha">5/12/2025</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">RAÍZ</span>
+
+
+
+        <span class="field-value" id="ef-raiz">W07</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">RELL-TERM-</span>
+
+
+
+        <span class="field-value" id="ef-rellterm">W07</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Material -->
+
+
+
+    <div class="fields-card" style="animation-delay:.09s">
+
+
+
+      <div class="fields-card-title">Material / Colada</div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">CÓDIGO / COLADA</span>
+
+
+
+        <span class="field-value" id="ef-colada">L7</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">CÓDIGO / COLADA_16</span>
+
+
+
+        <span class="field-value empty" id="ef-colada16">sin identificación</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Documento -->
+
+
+
+    <div class="fields-card" style="animation-delay:.12s">
+
+
+
+      <div class="fields-card-title">Documentación</div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">N° de Documento</span>
+
+
+
+        <span class="field-value" id="ef-doc">AH92-00-P-IS-1003</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">Rev-</span>
+
+
+
+        <span class="field-value" id="ef-rev">0</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">Hoja N°</span>
+
+
+
+        <span class="field-value" id="ef-hoja">2</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+      <div class="field-row editable">
+
+
+
+        <span class="field-label">Piping Class</span>
+
+
+
+        <span class="field-value" id="ef-piping">CA11</span>
+
+
+
+        <svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- QR Code -->
+
+
+
+    <div class="fields-card" style="animation-delay:.15s">
+
+
+
+      <div class="fields-card-title">Código QR</div>
+
+
+
+      <div class="field-row" style="justify-content:center;cursor:pointer" onclick="openQR()">
+
+
+
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0;width:100%">
+
+
+
+          <canvas id="qrPreview" width="80" height="80" style="border-radius:8px;border:1px solid var(--border)"></canvas>
+
+
+
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue-main);font-weight:500">Tocar para ver en grande</span>
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+  </div>
+
+
+
+  <button class="edit-fab" id="editFab" title="Editar" onclick="toggleEditMode()">
+
+
+
+    <svg id="editFabIcon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+
+
+
+  </button>
+
+
+
+
+
+
+
+  <!-- BOTTOM NAV -->
+
+
+
+  <div class="bottom-nav">
+
+
+
+    <div class="nav-item" onclick="closeEdit(); closeDetail();">
+
+
+
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+
+
+
+      <span class="nav-label">Menú</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="closeEdit()">
+
+
+
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+
+
+
+      <span class="nav-label">Volver</span>
+
+
+
+    </div>
+
+
+
+    <div class="nav-item" onclick="openQR()">
+
+
+
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+
+
+
+      <span class="nav-label">QR</span>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+</div><!-- /editScreen -->
+
+
+
+
+
+
+
+<!-- FORM MODAL — NUEVO / EDITAR JUNTA -->
+
+
+
+<div class="form-modal" id="formModal">
+
+
+
+  <div class="form-modal-bg" onclick="closeForm()"></div>
+
+
+
+  <div class="form-sheet">
+
+
+
+    <div class="form-sheet-handle"></div>
+
+
+
+    <div class="form-sheet-header">
+
+
+
+      <span class="form-sheet-title" id="formTitle">NUEVA JUNTA</span>
+
+
+
+      <button class="qr-close-btn" onclick="closeForm()">×</button>
+
+
+
+    </div>
+
+
+
+    <div class="form-scroll">
+
+
+
+
+
+
+
+      <div class="form-section-title">Identificación</div>
+
+
+
+      <div class="form-row-2">
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Área <span class="req">*</span></label>
+
+
+
+          <input class="form-input" id="fi-area" placeholder="Ej: 300">
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Línea N° <span class="req">*</span></label>
+
+
+
+          <input class="form-input" id="fi-linea" placeholder="Ej: 300-001">
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <div class="form-row-2">
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Spool <span class="req">*</span></label>
+
+
+
+          <input class="form-input" id="fi-spool" placeholder="Ej: 1" type="number" min="1">
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Junta N° <span class="req">*</span></label>
+
+
+
+          <input class="form-input" id="fi-junta" placeholder="Ej: 6" type="number" min="1">
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <div class="form-group">
+
+
+
+        <label class="form-label">Diámetro (pulgadas) <span class="req">*</span></label>
+
+
+
+        <input class="form-input" id="fi-diam" placeholder="Ej: 1.00" type="number" min="0" step="0.25">
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="form-section-title">Soldadura</div>
+
+
+
+      <div class="form-group">
+
+
+
+        <label class="form-label">Fecha de Soldadura</label>
+
+
+
+        <input class="form-input" id="fi-fecha" type="date" title="Fecha de Soldadura" placeholder="dd/mm/yyyy">
+
+
+
+      </div>
+
+
+
+      <div class="form-row-2">
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Raíz</label>
+
+
+
+          <input class="form-input" id="fi-raiz" placeholder="Ej: W07">
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Rell-Term-</label>
+
+
+
+          <input class="form-input" id="fi-rellterm" placeholder="Ej: W07">
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="form-section-title">Material / Colada</div>
+
+
+
+      <div class="form-row-2">
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Código / Colada</label>
+
+
+
+          <input class="form-input" id="fi-colada" placeholder="Ej: L7">
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Código / Colada_16</label>
+
+
+
+          <input class="form-input" id="fi-colada16" placeholder="Ej: CE-2847">
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div class="form-section-title">Documentación</div>
+
+
+
+      <div class="form-group">
+
+
+
+        <label class="form-label">N° de Documento</label>
+
+
+
+        <input class="form-input" id="fi-doc" placeholder="Ej: AH92-00-P-IS-1003">
+
+
+
+      </div>
+
+
+
+      <div class="form-row-2">
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Rev-</label>
+
+
+
+          <input class="form-input" id="fi-rev" placeholder="0" type="number" min="0">
+
+
+
+        </div>
+
+
+
+        <div class="form-group">
+
+
+
+          <label class="form-label">Hoja N°</label>
+
+
+
+          <input class="form-input" id="fi-hoja" placeholder="1" type="number" min="1">
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+      <div class="form-group">
+
+
+
+        <label class="form-label">Piping Class</label>
+
+
+
+        <input class="form-input" id="fi-piping" placeholder="Ej: CA11">
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="formError" style="display:none;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:8px;padding:10px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:#C62828;margin-bottom:12px"></div>
+
+
+
+
+
+
+
+    </div>
+
+
+
+    <div class="form-footer">
+
+
+
+      <button class="form-btn-cancel" onclick="closeForm()">Cancelar</button>
+
+
+
+      <button class="form-btn-save" id="formSaveBtn" onclick="saveForm()">
+
+
+
+        Guardar Junta
+
+
+
+      </button>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- CONFIRM DELETE MODAL -->
+
+
+
+<div class="confirm-modal" id="confirmModal">
+
+
+
+  <div class="confirm-modal-bg" onclick="closeConfirm()"></div>
+
+
+
+  <div class="confirm-card">
+
+
+
+    <div class="confirm-icon">
+
+
+
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+
+
+
+    </div>
+
+
+
+    <div class="confirm-title">Eliminar Junta</div>
+
+
+
+    <div class="confirm-msg">¿Estás seguro que querés eliminar esta junta? Esta acción no se puede deshacer.</div>
+
+
+
+    <div class="confirm-id" id="confirmJuntaId">J-300-01</div>
+
+
+
+    <div class="confirm-btns">
+
+
+
+      <button class="confirm-btn-cancel" onclick="closeConfirm()">Cancelar</button>
+
+
+
+      <button class="confirm-btn-delete" onclick="executeDelete()">Eliminar</button>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- QR MODAL -->
+
+
+
+<div class="qr-modal" id="qrModal">
+
+
+
+  <div class="qr-modal-bg" onclick="closeQR()"></div>
+
+
+
+  <div class="qr-sheet">
+
+
+
+    <div class="qr-handle"></div>
+
+
+
+    <div class="qr-sheet-header">
+
+
+
+      <span class="qr-sheet-title">CÓDIGO QR — JUNTA</span>
+
+
+
+      <button class="qr-close-btn" onclick="closeQR()">×</button>
+
+
+
+    </div>
+
+
+
+    <div class="qr-body">
+
+
+
+      <div>
+
+
+
+        <div class="qr-junta-label">ÁREA · LÍNEA · SPOOL · JUNTA</div>
+
+
+
+        <div class="qr-junta-id" id="qrJuntaLabel">300 · 300-001 · 1 · 1</div>
+
+
+
+      </div>
+
+
+
+      <div class="qr-canvas-wrap">
+
+
+
+        <canvas id="qrCanvas" width="200" height="200"></canvas>
+
+
+
+      </div>
+
+
+
+      <div class="qr-id-tag" id="qrIdTag">J-300-01</div>
+
+
+
+      <div class="qr-actions">
+
+
+
+        <button class="qr-btn-action qr-btn-download" onclick="downloadQR()">
+
+
+
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+
+
+
+          Descargar
+
+
+
+        </button>
+
+
+
+        <button class="qr-btn-action qr-btn-share" onclick="shareQR()">
+
+
+
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+
+
+
+          Compartir
+
+
+
+        </button>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- QR SCANNER MODAL -->
+
+
+
+<div class="qr-modal" id="qrScannerModal">
+
+
+
+  <div class="qr-modal-bg" onclick="closeQRScanner()"></div>
+
+
+
+  <div class="qr-sheet" style="border-radius:24px 24px 0 0">
+
+
+
+    <div class="qr-handle"></div>
+
+
+
+    <div class="qr-sheet-header">
+
+
+
+      <span class="qr-sheet-title">ESCANEAR QR</span>
+
+
+
+      <button class="qr-close-btn" onclick="closeQRScanner()">×</button>
+
+
+
+    </div>
+
+
+
+    <div class="qr-body" style="gap:14px">
+
+
+
+
+
+
+
+      <!-- Camera viewfinder -->
+
+
+
+      <div id="scannerWrap" style="position:relative;width:260px;height:260px;border-radius:16px;overflow:hidden;background:#0a1628">
+
+
+
+        <video id="qrVideo" style="width:100%;height:100%;object-fit:cover;display:block" playsinline autoplay muted></video>
+
+
+
+        <canvas id="qrScanCanvas" style="display:none"></canvas>
+
+
+
+
+
+
+
+        <!-- Corner markers overlay -->
+
+
+
+        <div style="position:absolute;inset:0;pointer-events:none">
+
+
+
+          <div style="position:absolute;top:12px;left:12px;width:36px;height:36px;border-top:3px solid #42A5F5;border-left:3px solid #42A5F5;border-radius:4px 0 0 0"></div>
+
+
+
+          <div style="position:absolute;top:12px;right:12px;width:36px;height:36px;border-top:3px solid #42A5F5;border-right:3px solid #42A5F5;border-radius:0 4px 0 0"></div>
+
+
+
+          <div style="position:absolute;bottom:12px;left:12px;width:36px;height:36px;border-bottom:3px solid #42A5F5;border-left:3px solid #42A5F5;border-radius:0 0 0 4px"></div>
+
+
+
+          <div style="position:absolute;bottom:12px;right:12px;width:36px;height:36px;border-bottom:3px solid #42A5F5;border-right:3px solid #42A5F5;border-radius:0 0 4px 0"></div>
+
+
+
+          <div id="scanLine2" style="position:absolute;left:12px;right:12px;height:2px;background:linear-gradient(90deg,transparent,#42A5F5,transparent);animation:scanAnim 2s ease-in-out infinite"></div>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <!-- Status overlay -->
+
+
+
+        <div id="scanStatus" style="position:absolute;bottom:0;left:0;right:0;background:rgba(10,22,40,0.75);padding:8px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#42A5F5">
+
+
+
+          Iniciando cámara...
+
+
+
+        </div>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <!-- Camera error / permission denied message -->
+
+
+
+      <div id="cameraError" style="display:none;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:10px;padding:12px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:#C62828;text-align:center;width:100%">
+
+
+
+        ⚠️ No se pudo acceder a la cámara.<br>Verificá los permisos del navegador.
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-sub);text-align:center;letter-spacing:.5px">
+
+
+
+        O ingresá el ID manualmente:
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div style="display:flex;gap:8px;width:100%">
+
+
+
+        <input id="qrManualInput" class="fi-input-text" placeholder="Ej: J-300-01" style="flex:1"
+
+
+
+          onkeydown="if(event.key==='Enter') searchByQRId()">
+
+
+
+        <button onclick="searchByQRId()" style="padding:8px 16px;background:var(--blue-main);color:#fff;border:none;border-radius:8px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer">Buscar</button>
+
+
+
+      </div>
+
+
+
+
+
+
+
+      <div id="qrScanResult" style="display:none;width:100%;background:var(--blue-light);border:1px solid #BBDEFB;border-radius:10px;padding:12px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue-main)"></div>
+
+
+
+
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- OVERLAY -->
+
+
+
+<div class="overlay" id="overlay" onclick="toggleFilter()"></div>
+
+
+
+
+
+
+
+<!-- FILTER PANEL -->
+
+
+
+<div class="filter-panel" id="filterPanel">
+
+
+
+  <div class="filter-handle"></div>
+
+
+
+  <div class="filter-header">
+
+
+
+    <span class="filter-title">FILTRAR</span>
+
+
+
+    <button class="filter-clear" id="btnLimpiar">Limpiar</button>
+
+
+
+  </div>
+
+
+
+
+
+
+
+  <div class="filter-scroll">
+
+
+
+
+
+
+
+    <!-- Soldada? -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#66BB6A"></div>
+
+
+
+        SOLDADA?
+
+
+
+      </div>
+
+
+
+      <div class="three-state-container">
+
+
+
+        <input type="radio" name="soldada_toggle" id="soldada-si" value="SI">
+
+
+
+        <input type="radio" name="soldada_toggle" id="soldada-0" value="0" checked>
+
+
+
+        <input type="radio" name="soldada_toggle" id="soldada-no" value="NO">
+
+
+
+        <div class="three-state-slider"></div>
+
+
+
+        <label for="soldada-si">SI</label>
+
+
+
+        <label for="soldada-0">0</label>
+
+
+
+        <label for="soldada-no">NO</label>
+
+
+
+      </div>
+
+
+
+    </div>
+
+    <div class="fi-group" id="soldadaDateRangeGroup" style="display:none;">
+
+      <div class="fi-label">
+
+        <div class="filter-dot" style="background:#2E7D32"></div>
+
+        RANGO DE FECHA (SOLDADA SI)
+
+      </div>
+
+      <div class="fi-range-row">
+
+        <div class="fi-range-field">
+
+          <span class="fi-range-label">DESDE</span>
+
+          <input class="fi-input" id="fv-fecha-desde" type="date">
+
+        </div>
+
+        <span class="fi-range-sep">-</span>
+
+        <div class="fi-range-field">
+
+          <span class="fi-range-label">HASTA</span>
+
+          <input class="fi-input" id="fv-fecha-hasta" type="date">
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Área -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#0277BD"></div>
+
+
+
+        Áreas
+
+
+
+      </div>
+
+
+
+      <div class="fi-chips" id="fc-area"></div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Línea -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#1565C0"></div>
+
+
+
+        Líneas
+
+
+
+      </div>
+
+
+
+      <div class="fi-chips" id="fc-linea">
+
+
+
+        <!-- Generado dinámicamente -->
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Spool -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#26C6DA"></div>
+
+
+
+        Spools
+
+
+
+      </div>
+
+
+
+      <div class="fi-chips" id="fc-spool">
+
+
+
+        <!-- Generado dinámicamente -->
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Junta -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#01579B"></div>
+
+
+
+        Juntas
+
+
+
+      </div>
+
+
+
+      <div class="fi-chips" id="fc-junta">
+
+
+
+        <!-- Generado dinámicamente -->
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- Raíz -->
+
+
+
+    <div class="fi-group">
+
+
+
+      <div class="fi-label">
+
+
+
+        <div class="filter-dot" style="background:#FFB300"></div>
+
+
+
+        Soldador
+
+
+
+      </div>
+
+
+
+      <div class="fi-chips" id="fc-raiz"></div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+  </div><!-- /filter-scroll -->
+
+
+
+
+
+
+
+  <div class="filter-footer">
+
+
+
+    <button class="btn-secondary" onclick="toggleFilter()">Cancelar</button>
+
+
+
+    <button class="btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<script src="./js/app.js"></script>
+
+
+
+
+
+
+
+<!-- Mobile Debug Overlay (Hidden by default, can be toggled via console or fatal error) -->
+
+
+
+<div id="debugConsole" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);color:#00ff00;font-family:monospace;font-size:10px;padding:10px;z-index:9999;overflow-y:auto;pointer-events:auto;">
+
+
+
+  <div style="font-weight:bold;border-bottom:1px solid #00ff00;margin-bottom:8px;padding-bottom:5px;display:flex;justify-content:space-between;pointer-events:auto;">
+
+
+
+    <span onclick="this.parentElement.parentElement.style.display='none'">[X] CERRAR</span>
+
+
+
+    <span onclick="toggleDebug()" style="color:#9CCC65">ALTERNAR DEBUG</span>
+
+    <span onclick="checkDiagnostics()" style="color:#42A5F5">DIAGNOSTICAR</span>
+
+
+
+    <span onclick="forceAppUpdate()" style="color:#FFB300">LIMPIAR Y ACTUALIZAR</span>
+
+
+
+  </div>
+
+
+
+  <div id="debugContent" style="pointer-events:auto;"></div>
+
+
+
+</div>
+
+
+
+
+
+
+
+</body>
+
+
+
+</html>
+
+
+

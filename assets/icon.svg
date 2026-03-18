@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Achero">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a1628"/>
+      <stop offset="1" stop-color="#1565C0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#g)"/>
+  <circle cx="256" cy="256" r="152" fill="#FFB300" opacity="0.12"/>
+  <path d="M166 322l44-132h36l44 132h-32l-8-26h-44l-8 26h-32zm58-52h28l-14-44-14 44z" fill="#F5F8FF"/>
+  <text x="256" y="365" text-anchor="middle" font-family="Rajdhani, Arial, sans-serif" font-size="48" font-weight="700" fill="#F5F8FF" letter-spacing="2">AT</text>
+</svg>
