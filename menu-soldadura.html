@@ -18,7 +18,7 @@
 
 
 
-<title>MENU — Gestión de Juntas</title>
+<title>MENÚ — Trazabilidad de Soldaduras</title>
 
 
 
@@ -107,6 +107,12 @@
 
 
 
+        <button class="btn-icon" onclick="printFilteredQRs()" id="printQrBtn" title="Imprimir QR filtrados">
+
+          <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/><line x1="17" y1="12" x2="17.01" y2="12"/></svg>
+
+        </button>
+
         <button class="btn-icon" onclick="syncNow()" id="syncNowBtn" title="Sincronizar ahora">
 
           <svg viewBox="0 0 24 24"><path d="M12 3v8"/><polyline points="9 6 12 3 15 6"/><path d="M12 21v-8"/><polyline points="9 18 12 21 15 18"/></svg>
@@ -153,7 +159,7 @@
 
 
 
-      <input class="search-input" id="mainSearchInput" type="text" placeholder="Buscar por área...">
+      <input class="search-input" id="mainSearchInput" type="text" placeholder="Buscar por línea...">
 
 
 
@@ -263,11 +269,11 @@
     </div>
     <div class="dashboard-charts">
       <div class="chart-card">
-        <div class="chart-title">Diametro Soldado Vs Pendiente</div>
+        <div class="chart-title">Pulgadas Soldado Vs Pendiente</div>
         <canvas id="chartEstados" height="180"></canvas>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Diametro Soldado Por Fecha</div>
+        <div class="chart-title">Pulgadas Soldado Por Fecha</div>
         <canvas id="chartProduccion" height="180"></canvas>
       </div>
     </div>
@@ -513,7 +519,7 @@
 
 
 
-        placeholder="Buscar por número de línea... "
+        placeholder="Buscar por spool..."
 
 
 
@@ -2213,7 +2219,7 @@
 
 
 
-    <!-- Soldada? -->
+    <!-- ¿Soldada? -->
 
 
 
@@ -2229,7 +2235,7 @@
 
 
 
-        SOLDADA?
+        ¿SOLDADA?
 
 
 
