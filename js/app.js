@@ -75,7 +75,7 @@
 
     window.forceAppUpdate = async function() {
 
-      debugLog("Forzando actualizacion...");
+      debugLog("Forzando actualización...");
 
       if ('serviceWorker' in navigator) {
 
@@ -243,9 +243,9 @@ async function syncQueue() {
 
       // ÁREA 103
 
-      { id:'J-103-01', area:'103', linea:'103-001', spool:'1', junta:'1', diam:'4.00',  fecha:'05/01/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
+      { id:'J-103-01', area:'103', linea:'103-001', spool:'1', junta:'1', diam:'4.00',  fecha:'05/01/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
 
-      { id:'J-103-02', area:'103', linea:'103-001', spool:'1', junta:'2', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
+      { id:'J-103-02', area:'103', linea:'103-001', spool:'1', junta:'2', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
 
       { id:'J-103-03', area:'103', linea:'103-002', spool:'2', junta:'1', diam:'6.00',  fecha:'07/01/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-2001',            doc:'AH92-00-P-IS-1002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
 
@@ -253,17 +253,17 @@ async function syncQueue() {
 
       // ÁREA 300
 
-      { id:'J-300-01', area:'300', linea:'300-001', spool:'1', junta:'1', diam:'1.00',  fecha:'12/03/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
+      { id:'J-300-01', area:'300', linea:'300-001', spool:'1', junta:'1', diam:'1.00',  fecha:'12/03/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
 
-      { id:'J-300-02', area:'300', linea:'300-002', spool:'1', junta:'2', diam:'6.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-300-02', area:'300', linea:'300-002', spool:'1', junta:'2', diam:'6.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
       { id:'J-300-03', area:'300', linea:'300-001', spool:'2', junta:'3', diam:'3.00',  fecha:'14/03/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-2847',            doc:'AH92-00-P-IS-1005', rev:'1', hoja:'3', piping:'CB22', status:'ok'      },
 
-      { id:'J-300-04', area:'300', linea:'300-003', spool:'2', junta:'4', diam:'10.00', fecha:'10/03/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1010', rev:'2', hoja:'5', piping:'CA11', status:'nok'     },
+      { id:'J-300-04', area:'300', linea:'300-003', spool:'2', junta:'4', diam:'10.00', fecha:'10/03/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificación', doc:'AH92-00-P-IS-1010', rev:'2', hoja:'5', piping:'CA11', status:'nok'     },
 
       { id:'J-300-05', area:'300', linea:'300-002', spool:'3', junta:'5', diam:'4.00',  fecha:'15/03/25', raiz:'TIG',  rellterm:'TIG',  colada:'P2',  colada16:'CE-9912',            doc:'AH92-00-P-IS-1003', rev:'0', hoja:'4', piping:'CD33', status:'ok'      },
 
-      { id:'J-300-06', area:'300', linea:'300-004', spool:'3', junta:'6', diam:'3.00',  fecha:'—',        raiz:'SMAW', rellterm:'SMAW', colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-300-06', area:'300', linea:'300-004', spool:'3', junta:'6', diam:'3.00',  fecha:'—',        raiz:'SMAW', rellterm:'SMAW', colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
       { id:'J-300-07', area:'300', linea:'300-004', spool:'4', junta:'7', diam:'2.00',  fecha:'16/03/25', raiz:'TIG',  rellterm:'TIG',  colada:'P2',  colada16:'CE-1100',            doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
 
@@ -271,9 +271,9 @@ async function syncQueue() {
 
       { id:'J-305-01', area:'305', linea:'305-001', spool:'1', junta:'1', diam:'8.00',  fecha:'02/02/25', raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'CE-3301',            doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
 
-      { id:'J-305-02', area:'305', linea:'305-001', spool:'1', junta:'2', diam:'8.00',  fecha:'—',        raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'sin identificacion', doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
+      { id:'J-305-02', area:'305', linea:'305-001', spool:'1', junta:'2', diam:'8.00',  fecha:'—',        raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'sin identificación', doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
 
-      { id:'J-305-03', area:'305', linea:'305-002', spool:'2', junta:'1', diam:'12.00', fecha:'05/02/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificacion', doc:'AH92-00-P-IS-2002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
+      { id:'J-305-03', area:'305', linea:'305-002', spool:'2', junta:'1', diam:'12.00', fecha:'05/02/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificación', doc:'AH92-00-P-IS-2002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
 
       // ÁREA OFF SKID
 
@@ -281,7 +281,7 @@ async function syncQueue() {
 
       { id:'J-OS-02',  area:'OFF SKID', linea:'OS-001', spool:'1', junta:'2', diam:'6.00',  fecha:'21/02/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-5501',     doc:'AH92-00-P-IS-3001', rev:'0', hoja:'1', piping:'CD33', status:'nok'     },
 
-      { id:'J-OS-03',  area:'OFF SKID', linea:'OS-002', spool:'2', junta:'1', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-3002', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-OS-03',  area:'OFF SKID', linea:'OS-002', spool:'2', junta:'1', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-3002', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
     ];
 
@@ -374,7 +374,7 @@ async function syncQueue() {
 
         } else {
 
-          console.warn("API retorno datos vacios o no validos");
+          console.warn("La API retornó datos vacíos o no válidos");
 
           loadFromLocalStorage();
 
@@ -388,13 +388,13 @@ async function syncQueue() {
 
         console.error("Error fatal en initData:", err);
 
-        let msg = 'Modo Local (Sin conexion)';
+        let msg = 'Modo local (sin conexión)';
 
 
 
         if (err.name === 'AbortError') msg = 'Tiempo de espera agotado';
 
-        else if (err.message.includes('Failed to fetch')) msg = 'Error de conexion (HTTPS/CORS?)';
+        else if (err.message.includes('Failed to fetch')) msg = 'Error de conexión (HTTPS/CORS?)';
 
         else if (err.message.includes('NetworkError')) msg = 'Error de red movil';
 
@@ -501,7 +501,7 @@ async function syncQueue() {
 
         if (!navigator.onLine) {
           await enqueueSync(action, item);
-          setSyncStatus('Sin conexion. En cola para sincronizar', 'warn');
+          setSyncStatus('Sin conexión. En cola para sincronizar', 'warn');
           return;
         }
 
@@ -514,7 +514,7 @@ async function syncQueue() {
 
         await enqueueSync(action, item);
         setSyncStatus('Guardado local. En cola para sincronizar', 'warn');
-        showToast('Guardado local. Se sincroniza cuando haya conexion');
+        showToast('Guardado local. Se sincroniza cuando haya conexión');
 
       }
 
@@ -585,7 +585,10 @@ async function syncQueue() {
 
 
     function deriveStatus(fecha, rechazada, currentStatus) {
-      if (!fecha || fecha === '?' || fecha === '-') return 'pending';
+      const normalized = String(fecha || '').trim().toLowerCase();
+      if (!normalized || normalized === '?' || normalized === '-' || normalized === '—' || normalized.includes('sin fecha')) {
+        return 'pending';
+      }
       if (rechazada === true) return 'nok';
       if (String(currentStatus).toLowerCase() === 'nok') return 'nok';
       return 'ok';
@@ -617,7 +620,7 @@ async function syncQueue() {
 
         colada:   String(j.colada || '—'),
 
-        colada16: String(j.colada16 || 'sin identificacion'),
+        colada16: String(j.colada16 || 'sin identificación'),
 
         doc:      String(j.doc || '—'),
 
@@ -647,7 +650,7 @@ async function syncQueue() {
 
       const v = searchVal.trim().toLowerCase();
 
-      if (v) juntas = juntas.filter(j => j.linea.toLowerCase().includes(v));
+      if (v) juntas = juntas.filter(j => j.spool.toLowerCase().includes(v));
 
 
 
@@ -1075,7 +1078,7 @@ async function syncQueue() {
       if (from > to) {
         fromEl.style.borderColor = '#E53935';
         toEl.style.borderColor = '#E53935';
-        return { ok: false, message: 'Rango de fecha invalido: "Desde" no puede ser mayor que "Hasta"' };
+        return { ok: false, message: 'Rango de fecha inválido: "Desde" no puede ser mayor que "Hasta"' };
       }
 
       return { ok: true };
@@ -1177,7 +1180,7 @@ async function syncQueue() {
     function applyFilters() {
       const dateValidation = validateSoldadaDateRange();
       if (!dateValidation.ok) {
-        showToast(dateValidation.message || 'Rango de fecha invalido');
+        showToast(dateValidation.message || 'Rango de fecha inválido');
         return;
       }
 
@@ -1441,7 +1444,7 @@ async function syncQueue() {
 
         const el = document.getElementById(eid);
 
-        el.classList.toggle('empty', el.textContent === 'Sin fecha' || el.textContent === 'sin identificacion');
+        el.classList.toggle('empty', el.textContent === 'Sin fecha' || el.textContent === 'sin identificación');
 
       });
 
@@ -1901,17 +1904,7 @@ async function syncQueue() {
 
         setTimeout(() => {
 
-          closeQRScanner();
-
-          // Clear result for next time
-
-          resultEl.style.display = 'none';
-
-          resultEl.innerHTML = '';
-
-          openDetail(found.area);
-
-          setTimeout(() => openEdit(found.id), 400);
+          openJuntaFromQR(found.id);
 
         }, 800);
 
@@ -1943,6 +1936,36 @@ async function syncQueue() {
 
   
 
+    function openJuntaFromQR(id) {
+
+      const found = JUNTAS.find(j => j.id === id);
+
+      if (!found) {
+
+        showToast('No se encontró la junta ' + id);
+
+        return;
+
+      }
+
+      closeQRScanner();
+
+      const resultEl = document.getElementById('qrScanResult');
+
+      if (resultEl) {
+
+        resultEl.style.display = 'none';
+
+        resultEl.innerHTML = '';
+
+      }
+
+      openDetail(found.area);
+
+      setTimeout(() => openEdit(found.id), 400);
+
+    }
+
     function searchByQRId() {
 
       const input = document.getElementById('qrManualInput').value.trim();
@@ -1967,13 +1990,23 @@ async function syncQueue() {
 
           Área ${found.area} · L° ${found.linea} · Spool ${found.spool} · Junta ${found.junta}<br><br>
 
-          <span onclick="closeQRScanner();openDetail('${found.area}');setTimeout(()=>openEdit('${found.id}'),400)"
+          <button id="qrOpenFoundBtn"
 
-            style="display:inline-block;margin-top:4px;background:#2E7D32;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;">
+            type="button"
 
-            → Abrir junta
+            style="display:inline-block;margin-top:4px;background:#2E7D32;color:#fff;padding:6px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;">
 
-          </span>`;
+            Abrir junta
+
+          </button>`;
+
+        const openBtn = document.getElementById('qrOpenFoundBtn');
+
+        if (openBtn) {
+
+          openBtn.addEventListener('click', () => openJuntaFromQR(found.id), { once: true });
+
+        }
 
       } else {
 
@@ -2181,7 +2214,7 @@ async function syncQueue() {
 
       document.getElementById('fi-colada').value  = j.colada === '—' ? '' : j.colada;
 
-      document.getElementById('fi-colada16').value= j.colada16 === 'sin identificacion' ? '' : j.colada16;
+      document.getElementById('fi-colada16').value= j.colada16 === 'sin identificación' ? '' : j.colada16;
 
       document.getElementById('fi-doc').value     = j.doc === '—' ? '' : j.doc;
 
@@ -2235,7 +2268,7 @@ async function syncQueue() {
 
       if (isNaN(diamVal) || diamVal <= 0) {
 
-        errEl.textContent = 'Ingres? un di?metro v?lido (mayor a 0).';
+        errEl.textContent = 'Ingresá un diámetro válido (mayor a 0).';
 
         errEl.style.display = 'block';
 
@@ -2304,7 +2337,7 @@ async function syncQueue() {
 
         colada:   document.getElementById('fi-colada').value.trim()   || '-',
 
-        colada16: document.getElementById('fi-colada16').value.trim() || 'sin identificacion',
+        colada16: document.getElementById('fi-colada16').value.trim() || 'sin identificación',
 
         doc:      document.getElementById('fi-doc').value.trim()      || '-',
 
@@ -2587,8 +2620,8 @@ async function syncQueue() {
       }
 
       if (!navigator.onLine) {
-        showToast('Sin conexion. Se sincroniza cuando vuelva internet');
-        setSyncStatus('Sin conexion (modo offline)', 'warn');
+        showToast('Sin conexión. Se sincroniza cuando vuelva internet');
+        setSyncStatus('Sin conexión (modo offline)', 'warn');
         return;
       }
 
@@ -2598,7 +2631,7 @@ async function syncQueue() {
         await initData();
         updateDashboard();
         setSyncStatus('Sincronizado...', 'ok');
-        showToast('Sincronizacion completada');
+        showToast('Sincronización completada');
       } catch (err) {
         console.error('Error en sincronizacion manual:', err);
         setSyncStatus('Error en sincronizacion manual', 'err');
@@ -2671,6 +2704,191 @@ async function syncQueue() {
       return hasFilters ? applyFiltersToData(JUNTAS, activeFilters) : JUNTAS;
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function buildPrintFilterSummary(filters) {
+      const entries = [];
+      if (filters.area?.length) entries.push(`Áreas: ${filters.area.join(', ')}`);
+      if (filters.linea?.length) entries.push(`Líneas: ${filters.linea.join(', ')}`);
+      if (filters.spool?.length) entries.push(`Spools: ${filters.spool.join(', ')}`);
+      if (filters.junta?.length) entries.push(`Juntas: ${filters.junta.join(', ')}`);
+      if (filters.raiz?.length) entries.push(`Soldador: ${filters.raiz.join(', ')}`);
+      if (filters.soldada) entries.push(`Soldada: ${filters.soldada}`);
+      if (filters.fechaDesde) entries.push(`Desde: ${filters.fechaDesde}`);
+      if (filters.fechaHasta) entries.push(`Hasta: ${filters.fechaHasta}`);
+      return entries.length ? entries.join(' | ') : 'Sin filtros activos';
+    }
+
+    function buildQRCodeDataUrl(junta) {
+      const canvas = document.createElement('canvas');
+      const qrText = `JUNTA:${junta.id}|AREA:${junta.area}|LINEA:${junta.linea}|SPOOL:${junta.spool}|N:${junta.junta}|DIAM:${junta.diam}`;
+      new QRious({
+        element: canvas,
+        value: qrText,
+        size: 180,
+        level: 'H',
+        background: '#ffffff',
+        foreground: '#0a1628'
+      });
+      return canvas.toDataURL('image/png');
+    }
+
+    function printFilteredQRs() {
+      try {
+        if (!window.QRious) {
+          showToast('No se pudieron generar los QR para imprimir');
+          return;
+        }
+
+        const list = [...getDashboardDataSource()].sort((a, b) => {
+          return String(a.area).localeCompare(String(b.area), 'es', { numeric: true })
+            || String(a.linea).localeCompare(String(b.linea), 'es', { numeric: true })
+            || String(a.spool).localeCompare(String(b.spool), 'es', { numeric: true })
+            || String(a.junta).localeCompare(String(b.junta), 'es', { numeric: true });
+        });
+
+        if (!list.length) {
+          showToast('No hay juntas para imprimir con los filtros actuales');
+          return;
+        }
+
+        const cardsHtml = list.map((junta) => {
+          const qrDataUrl = buildQRCodeDataUrl(junta);
+          const fecha = hasWeldDate(junta.fecha) ? junta.fecha : 'Sin fecha';
+          const soldador = junta.raiz && junta.raiz !== '—' ? junta.raiz : 'Sin soldador';
+          return `
+            <article class="print-card">
+              <div class="print-card-head">
+                <div class="print-card-id">${escapeHtml(junta.id)}</div>
+              </div>
+              <img class="print-qr" src="${qrDataUrl}" alt="QR ${escapeHtml(junta.id)}">
+              <div class="print-meta">Línea ${escapeHtml(junta.linea)}</div>
+              <div class="print-meta">Spool ${escapeHtml(junta.spool)} · Junta ${escapeHtml(junta.junta)}</div>
+              <div class="print-meta">Soldador ${escapeHtml(soldador)} · ${escapeHtml(fecha)}</div>
+            </article>`;
+        }).join('');
+
+        const printMarkup = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado QR</title>
+  <style>
+    :root {
+      --ink: #0a1628;
+      --muted: #546e7a;
+      --line: #cfd8dc;
+      --panel: #f7fbff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: var(--ink);
+      background: #fff;
+    }
+    .page {
+      padding: 8mm;
+    }
+    .print-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6mm;
+    }
+    .print-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--panel);
+      break-inside: avoid;
+      page-break-inside: avoid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-height: 84mm;
+    }
+    .print-card-head {
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    .print-card-id {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .print-qr {
+      width: 42mm;
+      height: 42mm;
+      object-fit: contain;
+      background: #fff;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .print-meta {
+      font-size: 10px;
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
+    @media print {
+      .page {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="print-grid">
+      ${cardsHtml}
+    </section>
+  </main>
+</body>
+ </html>`;
+
+        const printWindow = window.open('', '_blank', 'width=1100,height=800');
+        if (!printWindow) {
+          showToast('Permití ventanas emergentes para imprimir');
+          return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(printMarkup);
+        printWindow.document.close();
+        printWindow.focus();
+
+        const triggerPrint = () => {
+          try {
+            printWindow.print();
+          } catch (err) {
+            console.error('No se pudo abrir la impresión:', err);
+          }
+        };
+
+        if (printWindow.document.readyState === 'complete') {
+          setTimeout(triggerPrint, 250);
+        } else {
+          printWindow.onload = () => setTimeout(triggerPrint, 250);
+        }
+      } catch (err) {
+        console.error('Error al generar la vista imprimible:', err);
+        showToast('No se pudo generar el listado para imprimir');
+      }
+    }
+
     function parseFechaToDate(fecha) {
       if (!hasWeldDate(fecha)) return null;
       if (fecha.includes('/')) {
@@ -2733,7 +2951,7 @@ async function syncQueue() {
       if (kPending) kPending.textContent = summary.pendiente.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       if (chartEstados) {
-        chartEstados.data.labels = ['Diametro soldado', 'Diametro pendiente'];
+        chartEstados.data.labels = ['Pulgadas soldado', 'Pulgadas pendiente'];
         chartEstados.data.datasets[0].data = [summary.soldado, summary.pendiente];
         chartEstados.data.datasets[0].backgroundColor = ['#2E7D32', '#FFB300'];
         chartEstados.update();
@@ -2756,7 +2974,7 @@ async function syncQueue() {
       chartEstados = new Chart(elEstados, {
         type: 'doughnut',
         data: {
-          labels: ['Diametro soldado', 'Diametro pendiente'],
+          labels: ['Pulgadas soldado', 'Pulgadas pendiente'],
           datasets: [{
             data: [0, 0],
             backgroundColor: ['#2E7D32', '#FFB300']
@@ -2784,7 +3002,7 @@ async function syncQueue() {
         data: {
           labels: [],
           datasets: [{
-            label: 'Suma de diametro por fecha',
+            label: 'Suma de pulgadas por fecha',
             data: [],
             borderColor: '#1565C0',
             backgroundColor: 'rgba(21,101,192,0.12)',
@@ -2852,8 +3070,8 @@ async function syncQueue() {
         initData();
         initDashboard();
         if (navigator.onLine) syncQueue();
-        window.addEventListener('online', () => { setSyncStatus('Conexion restaurada. Sincronizando...', 'warn'); syncQueue(); });
-        window.addEventListener('offline', () => setSyncStatus('Sin conexion (modo offline)', 'warn'));
+        window.addEventListener('online', () => { setSyncStatus('Conexión restaurada. Sincronizando...', 'warn'); syncQueue(); });
+        window.addEventListener('offline', () => setSyncStatus('Sin conexión (modo offline)', 'warn'));
         setInterval(() => { if (navigator.onLine) syncQueue(); }, 30000);
 
       } catch (err) {
@@ -2914,6 +3132,7 @@ async function syncQueue() {
 
     window.refreshMain = refreshMain;
     window.syncNow = syncNow;
+    window.printFilteredQRs = printFilteredQRs;
 
     window.toggleEditMode = toggleEditMode;
 
