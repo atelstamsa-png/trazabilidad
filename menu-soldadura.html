@@ -18,17 +18,17 @@
 
 
 
-<title>MENÚ — Trazabilidad de Soldaduras</title>
+<title>MENU - Gestion de Juntas v1.3.12</title>
 
 
 
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="./css/style.css?v=1.3.8">
 
 
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json?v=1.3.8">
 
 
 
@@ -37,11 +37,11 @@
 
 
 
-<script src="./js/jsQR.min.js" onload="console.log('jsQR Local Loaded OK')" onerror="window.jsQRError=true"></script>
+<script src="./js/jsQR.min.js?v=1.3.8" onload="console.log('jsQR Local Loaded OK')" onerror="window.jsQRError=true"></script>
 
 
 
-<script src="./js/qrious.min.js"></script>
+<script src="./js/qrious.min.js?v=1.3.8"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -91,7 +91,7 @@
 
 
 
-          <div class="app-subtitle" onclick="handleDebugTap()" style="cursor:help">SEGUIMIENTO DE SOLDADURA <span style="font-size:8px;opacity:0.5;margin-left:5px">v1.3.7</span></div>
+          <div class="app-subtitle" onclick="handleDebugTap()" style="cursor:help">SEGUIMIENTO DE SOLDADURA <span style="font-size:8px;opacity:0.5;margin-left:5px">v1.3.12</span></div>
 
 
 
@@ -106,12 +106,6 @@
       <div class="header-actions">
 
 
-
-        <button class="btn-icon" onclick="printFilteredQRs()" id="printQrBtn" title="Imprimir QR filtrados">
-
-          <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/><line x1="17" y1="12" x2="17.01" y2="12"/></svg>
-
-        </button>
 
         <button class="btn-icon" onclick="syncNow()" id="syncNowBtn" title="Sincronizar ahora">
 
@@ -159,7 +153,7 @@
 
 
 
-      <input class="search-input" id="mainSearchInput" type="text" placeholder="Buscar por línea...">
+      <input class="search-input" id="mainSearchInput" type="text" placeholder="Buscar por área...">
 
 
 
@@ -269,11 +263,11 @@
     </div>
     <div class="dashboard-charts">
       <div class="chart-card">
-        <div class="chart-title">Pulgadas Soldado Vs Pendiente</div>
+        <div class="chart-title">Diametro Soldado Vs Pendiente</div>
         <canvas id="chartEstados" height="180"></canvas>
       </div>
       <div class="chart-card">
-        <div class="chart-title">Pulgadas Soldado Por Fecha</div>
+        <div class="chart-title">Diametro Soldado Por Fecha</div>
         <canvas id="chartProduccion" height="180"></canvas>
       </div>
     </div>
@@ -519,7 +513,7 @@
 
 
 
-        placeholder="Buscar por spool..."
+        placeholder="Buscar por número de línea... "
 
 
 
@@ -2219,7 +2213,7 @@
 
 
 
-    <!-- ¿Soldada? -->
+    <!-- Soldada? -->
 
 
 
@@ -2235,7 +2229,7 @@
 
 
 
-        ¿SOLDADA?
+        SOLDADA?
 
 
 
@@ -2565,7 +2559,7 @@
 
 
 
-<script src="./js/app.js"></script>
+<script src="./js/app.js?v=1.3.12"></script>
 
 
 
@@ -2590,6 +2584,10 @@
 
 
     <span onclick="toggleDebug()" style="color:#9CCC65">ALTERNAR DEBUG</span>
+
+    <span onclick="inspectCurrentJunta()" style="color:#64B5F6">INSPECT JUNTA</span>
+
+    <span onclick="inspectRemoteJunta()" style="color:#FFB74D">INSPECT REMOTO</span>
 
     <span onclick="checkDiagnostics()" style="color:#42A5F5">DIAGNOSTICAR</span>
 
