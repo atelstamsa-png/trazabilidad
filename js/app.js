@@ -4,7 +4,7 @@
 
       window.addEventListener('load', () => {
 
-        navigator.serviceWorker.register('./sw.js')
+        navigator.serviceWorker.register('./sw.js?v=1.3.12')
 
           .then(reg => console.log('SW registrado', reg))
 
@@ -75,7 +75,7 @@
 
     window.forceAppUpdate = async function() {
 
-      debugLog("Forzando actualización...");
+      debugLog("Forzando actualizacion...");
 
       if ('serviceWorker' in navigator) {
 
@@ -135,6 +135,78 @@
 
     };
 
+    window.inspectCurrentJunta = function() {
+      try {
+        const dbg = document.getElementById('debugConsole');
+        if (dbg) dbg.style.display = 'block';
+
+        if (!currentQRData || !currentQRData.id) {
+          debugLog('INSPECT: no hay junta seleccionada', true);
+          return;
+        }
+
+        const current = JUNTAS.find(j => j.id === currentQRData.id) || null;
+        const storedRaw = localStorage.getItem('juntasData');
+        let storedItem = null;
+
+        if (storedRaw) {
+          try {
+            const parsed = JSON.parse(storedRaw);
+            if (Array.isArray(parsed)) {
+              storedItem = parsed.find(j => String(j.id) === String(currentQRData.id)) || null;
+            }
+          } catch (err) {
+            debugLog(`INSPECT localStorage parse error: ${err.message}`, true);
+          }
+        }
+
+        debugLog(`INSPECT ID: ${currentQRData.id}`);
+        debugLog(`MEM current.status=${current?.status} current.STATUS=${current?.STATUS} current.spoolCompleto=${current?.spoolCompleto} current["Spool Completo"]=${current?.['Spool Completo']}`);
+        debugLog(`LOCAL raw.status=${storedItem?.status} raw.STATUS=${storedItem?.STATUS} raw.spoolCompleto=${storedItem?.spoolCompleto} raw["Spool Completo"]=${storedItem?.['Spool Completo']}`);
+        debugLog(`MEM current.rechazada=${current?.rechazada} LOCAL raw.rechazada=${storedItem?.rechazada}`);
+        debugLog(`MEM full=${JSON.stringify(current)}`);
+        debugLog(`LOCAL full=${JSON.stringify(storedItem)}`);
+      } catch (err) {
+        debugLog(`INSPECT error: ${err.message}`, true);
+      }
+    };
+
+    window.inspectRemoteJunta = async function() {
+      try {
+        const dbg = document.getElementById('debugConsole');
+        if (dbg) dbg.style.display = 'block';
+
+        if (!currentQRData || !currentQRData.id) {
+          debugLog('REMOTE INSPECT: no hay junta seleccionada', true);
+          return;
+        }
+
+        debugLog(`REMOTE INSPECT start id=${currentQRData.id}`);
+        const res = await fetch(API_URL, { method: 'GET', cache: 'no-store' });
+        const text = await res.text();
+        let parsed = null;
+        try {
+          parsed = JSON.parse(text);
+        } catch (err) {
+          debugLog(`REMOTE INSPECT JSON parse error: ${err.message}`, true);
+          debugLog(`REMOTE raw text=${text.slice(0, 500)}`, true);
+          return;
+        }
+
+        if (!Array.isArray(parsed)) {
+          debugLog(`REMOTE INSPECT respuesta no array: ${JSON.stringify(parsed).slice(0, 500)}`, true);
+          return;
+        }
+
+        const rawItem = parsed.find(j => String(j.id || j.ID || '') === String(currentQRData.id)) || null;
+        debugLog(`REMOTE raw.status=${rawItem?.status} raw.STATUS=${rawItem?.STATUS} raw.spoolCompleto=${rawItem?.spoolCompleto} raw["Spool Completo"]=${rawItem?.['Spool Completo']} raw["Spool clompleto"]=${rawItem?.['Spool clompleto']}`);
+        debugLog(`REMOTE raw.rechazada=${rawItem?.rechazada} raw.Rechazada=${rawItem?.Rechazada}`);
+        debugLog(`REMOTE full=${JSON.stringify(rawItem)}`);
+      } catch (err) {
+        debugLog(`REMOTE INSPECT error: ${err.message}`, true);
+      }
+    };
+
 
 
     if (window.jsQR) debugLog("📚 jsQR library detected");
@@ -143,7 +215,7 @@
 
 
 
-    debugLog("🚀 Script v1.3.7 ready");
+    debugLog("Script v1.3.12 ready");
 
     checkDiagnostics();
 
@@ -223,6 +295,7 @@ async function syncQueue() {
       const items = await getAllFromStore(STORE_QUEUE);
       if (!items.length) return;
       setSyncStatus('Sincronizando cola...', 'warn');
+      let failed = false;
       for (const ev of items) {
         try {
           await postToSheets(ev.action, ev.data, ev.ts);
@@ -230,10 +303,11 @@ async function syncQueue() {
         } catch (err) {
           console.error('Error sync queue:', err);
           setSyncStatus('Error al sincronizar cola', 'err');
+          failed = true;
           break;
         }
       }
-      setSyncStatus('Sincronizado...', 'ok');
+      if (!failed) setSyncStatus('Sincronizado...', 'ok');
     }
 
 
@@ -243,9 +317,9 @@ async function syncQueue() {
 
       // ÁREA 103
 
-      { id:'J-103-01', area:'103', linea:'103-001', spool:'1', junta:'1', diam:'4.00',  fecha:'05/01/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
+      { id:'J-103-01', area:'103', linea:'103-001', spool:'1', junta:'1', diam:'4.00',  fecha:'05/01/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
 
-      { id:'J-103-02', area:'103', linea:'103-001', spool:'1', junta:'2', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
+      { id:'J-103-02', area:'103', linea:'103-001', spool:'1', junta:'2', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
 
       { id:'J-103-03', area:'103', linea:'103-002', spool:'2', junta:'1', diam:'6.00',  fecha:'07/01/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-2001',            doc:'AH92-00-P-IS-1002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
 
@@ -253,17 +327,17 @@ async function syncQueue() {
 
       // ÁREA 300
 
-      { id:'J-300-01', area:'300', linea:'300-001', spool:'1', junta:'1', diam:'1.00',  fecha:'12/03/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
+      { id:'J-300-01', area:'300', linea:'300-001', spool:'1', junta:'1', diam:'1.00',  fecha:'12/03/25', raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
 
-      { id:'J-300-02', area:'300', linea:'300-002', spool:'1', junta:'2', diam:'6.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-300-02', area:'300', linea:'300-002', spool:'1', junta:'2', diam:'6.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1003', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
       { id:'J-300-03', area:'300', linea:'300-001', spool:'2', junta:'3', diam:'3.00',  fecha:'14/03/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-2847',            doc:'AH92-00-P-IS-1005', rev:'1', hoja:'3', piping:'CB22', status:'ok'      },
 
-      { id:'J-300-04', area:'300', linea:'300-003', spool:'2', junta:'4', diam:'10.00', fecha:'10/03/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificación', doc:'AH92-00-P-IS-1010', rev:'2', hoja:'5', piping:'CA11', status:'nok'     },
+      { id:'J-300-04', area:'300', linea:'300-003', spool:'2', junta:'4', diam:'10.00', fecha:'10/03/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1010', rev:'2', hoja:'5', piping:'CA11', status:'nok'     },
 
       { id:'J-300-05', area:'300', linea:'300-002', spool:'3', junta:'5', diam:'4.00',  fecha:'15/03/25', raiz:'TIG',  rellterm:'TIG',  colada:'P2',  colada16:'CE-9912',            doc:'AH92-00-P-IS-1003', rev:'0', hoja:'4', piping:'CD33', status:'ok'      },
 
-      { id:'J-300-06', area:'300', linea:'300-004', spool:'3', junta:'6', diam:'3.00',  fecha:'—',        raiz:'SMAW', rellterm:'SMAW', colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-300-06', area:'300', linea:'300-004', spool:'3', junta:'6', diam:'3.00',  fecha:'—',        raiz:'SMAW', rellterm:'SMAW', colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
       { id:'J-300-07', area:'300', linea:'300-004', spool:'4', junta:'7', diam:'2.00',  fecha:'16/03/25', raiz:'TIG',  rellterm:'TIG',  colada:'P2',  colada16:'CE-1100',            doc:'AH92-00-P-IS-1008', rev:'0', hoja:'2', piping:'CA11', status:'ok'      },
 
@@ -271,9 +345,9 @@ async function syncQueue() {
 
       { id:'J-305-01', area:'305', linea:'305-001', spool:'1', junta:'1', diam:'8.00',  fecha:'02/02/25', raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'CE-3301',            doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'ok'      },
 
-      { id:'J-305-02', area:'305', linea:'305-001', spool:'1', junta:'2', diam:'8.00',  fecha:'—',        raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'sin identificación', doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
+      { id:'J-305-02', area:'305', linea:'305-001', spool:'1', junta:'2', diam:'8.00',  fecha:'—',        raiz:'TIG',  rellterm:'TIG',  colada:'R3',  colada16:'sin identificacion', doc:'AH92-00-P-IS-2001', rev:'0', hoja:'1', piping:'CA11', status:'pending' },
 
-      { id:'J-305-03', area:'305', linea:'305-002', spool:'2', junta:'1', diam:'12.00', fecha:'05/02/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificación', doc:'AH92-00-P-IS-2002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
+      { id:'J-305-03', area:'305', linea:'305-002', spool:'2', junta:'1', diam:'12.00', fecha:'05/02/25', raiz:'SMAW', rellterm:'SMAW', colada:'K9',  colada16:'sin identificacion', doc:'AH92-00-P-IS-2002', rev:'1', hoja:'2', piping:'CB22', status:'ok'      },
 
       // ÁREA OFF SKID
 
@@ -281,7 +355,7 @@ async function syncQueue() {
 
       { id:'J-OS-02',  area:'OFF SKID', linea:'OS-001', spool:'1', junta:'2', diam:'6.00',  fecha:'21/02/25', raiz:'GTAW', rellterm:'GTAW', colada:'M4',  colada16:'CE-5501',     doc:'AH92-00-P-IS-3001', rev:'0', hoja:'1', piping:'CD33', status:'nok'     },
 
-      { id:'J-OS-03',  area:'OFF SKID', linea:'OS-002', spool:'2', junta:'1', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificación', doc:'AH92-00-P-IS-3002', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
+      { id:'J-OS-03',  area:'OFF SKID', linea:'OS-002', spool:'2', junta:'1', diam:'4.00',  fecha:'—',        raiz:'W07',  rellterm:'W07',  colada:'L7',  colada16:'sin identificacion', doc:'AH92-00-P-IS-3002', rev:'0', hoja:'2', piping:'CA11', status:'pending' },
 
     ];
 
@@ -348,25 +422,18 @@ async function syncQueue() {
 
 
         if (payload && payload.length > 0) {
-        const pending = await hasPendingQueue();
-        if (pending) {
-          loadFromLocalStorage();
-          showToast('Cambios locales pendientes. No se sobreescribe la nube');
-          setSyncStatus('Pendientes por sincronizar', 'warn');
-          renderMainList();
-          initFilterChips();
-          return;
-        }
-
-          const remoteList = sanitizeJuntas(payload);
-          // Sin pendientes en cola: la nube (Sheets) es la fuente de verdad.
+          const pending = await hasPendingQueue();
+          const remoteList = sanitizeJuntasNormalized(payload);
           JUNTAS = remoteList;
-
           saveToLocalStorage();
 
-          showToast('Datos sincronizados desde Sheets');
-
-          setSyncStatus('Sincronizado...', 'ok');
+          if (pending) {
+            showToast('Datos actualizados desde Sheets. Hay pendientes locales en cola');
+            setSyncStatus('Pendientes por sincronizar', 'warn');
+          } else {
+            showToast('Datos sincronizados desde Sheets');
+            setSyncStatus('Sincronizado...', 'ok');
+          }
 
         } else if (data && data.error === 'network_error') {
 
@@ -374,7 +441,7 @@ async function syncQueue() {
 
         } else {
 
-          console.warn("La API retornó datos vacíos o no válidos");
+          console.warn("API retorno datos vacios o no validos");
 
           loadFromLocalStorage();
 
@@ -388,13 +455,13 @@ async function syncQueue() {
 
         console.error("Error fatal en initData:", err);
 
-        let msg = 'Modo local (sin conexión)';
+        let msg = 'Modo Local (Sin conexion)';
 
 
 
         if (err.name === 'AbortError') msg = 'Tiempo de espera agotado';
 
-        else if (err.message.includes('Failed to fetch')) msg = 'Error de conexión (HTTPS/CORS?)';
+        else if (err.message.includes('Failed to fetch')) msg = 'Error de conexion (HTTPS/CORS?)';
 
         else if (err.message.includes('NetworkError')) msg = 'Error de red movil';
 
@@ -424,11 +491,11 @@ async function syncQueue() {
 
       if (stored) {
 
-        JUNTAS = sanitizeJuntas(JSON.parse(stored));
+        JUNTAS = sanitizeJuntasNormalized(JSON.parse(stored));
 
       } else {
 
-        JUNTAS = sanitizeJuntas(INITIAL_JUNTAS);
+        JUNTAS = sanitizeJuntasNormalized(INITIAL_JUNTAS);
 
         saveToLocalStorage();
 
@@ -444,15 +511,35 @@ async function syncQueue() {
 
     }
 
-    function mergeJuntasPreferLocal(localList, remoteList) {
-      const merged = new Map();
-      remoteList.forEach(j => merged.set(j.id, j));
-      localList.forEach(j => merged.set(j.id, j));
-      return [...merged.values()];
-    }
-
     async function postToSheets(action, item, ts = new Date().toISOString()) {
-      const payload = { action, data: item, ts, ...(item || {}) };
+      const sheetAliases = item ? {
+        STATUS: item.status ?? '',
+        Status: item.status ?? '',
+        status: item.status ?? '',
+        Estado: item.status ?? '',
+        estado: item.status ?? '',
+        Fecha: item.fecha ?? '',
+        Spool: item.spool ?? '',
+        'Fecha Spool': item.spoolFecha ?? '',
+        'Spool Fecha': item.spoolFecha ?? '',
+        spoolFecha: item.spoolFecha ?? '',
+        Canista: item.canista ?? '',
+        canista: item.canista ?? '',
+        'Cañista': item.canista ?? '',
+        'Spool Completo': item.spoolCompleto ?? '',
+        'Spool clompleto': item.spoolCompleto ?? '',
+        'Spool Clompleto': item.spoolCompleto ?? '',
+        'Spool completo': item.spoolCompleto ?? '',
+        'SPOOL COMPLETO': item.spoolCompleto ?? '',
+        spoolCompleto: item.spoolCompleto ?? '',
+        Rechazada: item.rechazada ?? false,
+        rechazada: item.rechazada ?? false,
+        Sch: item.sch ?? '',
+        Tipo: item.tipo ?? '',
+        Clase: item.clase ?? '',
+        Factor: item.factor ?? ''
+      } : {};
+      const payload = { action, data: { ...(item || {}), ...sheetAliases }, ts, ...(item || {}), ...sheetAliases };
       const json = JSON.stringify(payload);
 
       const trySend = async (contentType, body) => {
@@ -501,7 +588,7 @@ async function syncQueue() {
 
         if (!navigator.onLine) {
           await enqueueSync(action, item);
-          setSyncStatus('Sin conexión. En cola para sincronizar', 'warn');
+          setSyncStatus('Sin conexion. En cola para sincronizar', 'warn');
           return;
         }
 
@@ -514,7 +601,7 @@ async function syncQueue() {
 
         await enqueueSync(action, item);
         setSyncStatus('Guardado local. En cola para sincronizar', 'warn');
-        showToast('Guardado local. Se sincroniza cuando haya conexión');
+        showToast('Guardado local. Se sincroniza cuando haya conexion');
 
       }
 
@@ -584,13 +671,53 @@ async function syncQueue() {
 
 
 
-    function deriveStatus(fecha, rechazada, currentStatus) {
-      const normalized = String(fecha || '').trim().toLowerCase();
-      if (!normalized || normalized === '?' || normalized === '-' || normalized === '—' || normalized.includes('sin fecha')) {
-        return 'pending';
+    function normalizeFieldKey(value) {
+      return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function getField(obj, ...keys) {
+      if (!obj || typeof obj !== 'object') return undefined;
+      for (const key of keys) {
+        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') return obj[key];
       }
-      if (rechazada === true) return 'nok';
-      if (String(currentStatus).toLowerCase() === 'nok') return 'nok';
+      const entries = Object.keys(obj);
+      for (const key of keys) {
+        const match = entries.find(entry => normalizeFieldKey(entry) === normalizeFieldKey(key));
+        if (match && obj[match] !== undefined && obj[match] !== null && obj[match] !== '') return obj[match];
+      }
+      return undefined;
+    }
+
+    function normalizeStoredText(value, fallback = '—') {
+      const raw = String(value ?? '').trim();
+      return raw ? raw : fallback;
+    }
+
+    function normalizeStoredTextOrBlank(value) {
+      return String(value ?? '').trim();
+    }
+
+    function isTruthyValue(value) {
+      return ['si', 'yes', 'true', '1', 'x', 'checked', 'ok'].includes(normalizeFieldKey(value));
+    }
+
+    function normalizeSpoolCompleto(value) {
+      return isTruthyValue(value) ? 'Si' : 'No';
+    }
+
+    function isMissingDateValue(value) {
+      const raw = String(value ?? '').trim();
+      const normalized = normalizeFieldKey(raw);
+      if (!raw || raw === '?' || raw === '-') return true;
+      if (['sinfecha', 'null', 'undefined'].includes(normalized)) return true;
+      if (!/\d/.test(raw) && raw.length <= 10) return true;
+      return !raw || raw === '?' || raw === '-' || raw === 'â€”' || ['sinfecha', 'null', 'undefined'].includes(normalized);
+    }
+
+    function deriveStatus(fecha, rechazada, currentStatus) {
+      const normalizedStatus = normalizeFieldKey(currentStatus);
+      if (rechazada === true || ['nok', 'rech', 'rechazado', 'rejected'].includes(normalizedStatus)) return 'nok';
+      if (isMissingDateValue(fecha) || ['pending', 'pend', 'pendiente'].includes(normalizedStatus)) return 'pending';
       return 'ok';
     }
 
@@ -620,7 +747,7 @@ async function syncQueue() {
 
         colada:   String(j.colada || '—'),
 
-        colada16: String(j.colada16 || 'sin identificación'),
+        colada16: String(j.colada16 || 'sin identificacion'),
 
         doc:      String(j.doc || '—'),
 
@@ -660,6 +787,7 @@ async function syncQueue() {
 
       
 
+      const pendingDisplaySum = juntas.filter(j => j.status === 'pending').reduce((s,j) => s + parseFloat(j.diam), 0);
       const dsJuntas = document.getElementById('ds-juntas');
 
       const dsPulg   = document.getElementById('ds-pulgadas');
@@ -672,7 +800,7 @@ async function syncQueue() {
 
       if (dsPulg)   dsPulg.textContent   = totalDiam.toLocaleString('es-AR',{minimumFractionDigits:2});
 
-      if (dsSold)   dsSold.textContent   = pendingAreaSum.toLocaleString('es-AR',{minimumFractionDigits:2});
+      if (dsSold)   dsSold.textContent   = pendingDisplaySum.toLocaleString('es-AR',{minimumFractionDigits:2});
 
 
 
@@ -696,7 +824,7 @@ async function syncQueue() {
 
       Object.keys(byLinea).sort().forEach(linea => {
 
-        html += `<div class="list-group-label">Línea ${linea}</div>`;
+        html += `<div class="list-group-label">Linea ${linea}</div>`;
 
         byLinea[linea].forEach((j, idx) => {
 
@@ -1060,6 +1188,46 @@ async function syncQueue() {
 
     }
 
+    function sanitizeJuntasNormalized(data) {
+
+      if (!Array.isArray(data)) return [];
+
+      return data.map(j => {
+        const fecha = normalizeDate(getField(j, 'fecha', 'Fecha', 'FECHA'));
+        const statusRaw = getField(j, 'status', 'STATUS', 'estado', 'Estado') || '';
+        const rechazada = isTruthyValue(getField(j, 'rechazada', 'Rechazada')) || ['nok', 'rech', 'rechazado'].includes(normalizeFieldKey(statusRaw));
+
+        return {
+          ...j,
+          id: String(getField(j, 'id', 'ID') || ''),
+          area: String(getField(j, 'area', 'Area', 'AREA') || ''),
+          linea: String(getField(j, 'linea', 'Linea', 'LINEA', 'Linea N°', 'Línea N°') || ''),
+          spool: String(getField(j, 'spool', 'Spool', 'SPOOL') || ''),
+          junta: String(getField(j, 'junta', 'Junta', 'JUNTA', 'Junta N°') || ''),
+          diam: parseFloat(getField(j, 'diam', 'Diam', 'DIAM', 'diametro', 'Diametro', 'DIAMETRO') || 0).toFixed(2),
+          fecha,
+          raiz: normalizeStoredText(getField(j, 'raiz', 'Raiz', 'RAIZ')),
+          rellterm: normalizeStoredText(getField(j, 'rellterm', 'RellTerm', 'Rell-Term', 'RELLTERM')),
+          colada: normalizeStoredText(getField(j, 'colada', 'Colada', 'COLADA')),
+          colada16: normalizeStoredText(getField(j, 'colada16', 'Colada16', 'COLADA16', 'Colada_16'), 'sin identificacion'),
+          doc: normalizeStoredText(getField(j, 'doc', 'Doc', 'DOC')),
+          rev: String(getField(j, 'rev', 'Rev', 'REV') || '0'),
+          hoja: String(getField(j, 'hoja', 'Hoja', 'HOJA') || '1'),
+          piping: normalizeStoredText(getField(j, 'piping', 'Piping', 'Piping Class', 'PIPING')),
+          sch: normalizeStoredTextOrBlank(getField(j, 'sch', 'Sch', 'SCH')),
+          tipo: normalizeStoredTextOrBlank(getField(j, 'tipo', 'Tipo', 'TIPO')),
+          clase: normalizeStoredTextOrBlank(getField(j, 'clase', 'Clase', 'CLASE')),
+          factor: normalizeStoredTextOrBlank(getField(j, 'factor', 'Factor', 'FACTOR')),
+          spoolFecha: normalizeDate(getField(j, 'spoolFecha', 'Fecha Spool', 'Spool Fecha', 'FechaSpool')),
+          canista: normalizeStoredTextOrBlank(getField(j, 'canista', 'Canista', 'Cañista')),
+          spoolCompleto: normalizeSpoolCompleto(getField(j, 'spoolCompleto', 'Spool Completo', 'SpoolCompleto', 'Spool clompleto', 'Spool Clompleto')),
+          rechazada,
+          status: deriveStatus(fecha, rechazada, statusRaw)
+        };
+      });
+
+    }
+
     function validateSoldadaDateRange() {
       const soldadaToggle = document.querySelector('input[name="soldada_toggle"]:checked')?.value || '0';
       const fromEl = document.getElementById('fv-fecha-desde');
@@ -1078,7 +1246,7 @@ async function syncQueue() {
       if (from > to) {
         fromEl.style.borderColor = '#E53935';
         toEl.style.borderColor = '#E53935';
-        return { ok: false, message: 'Rango de fecha inválido: "Desde" no puede ser mayor que "Hasta"' };
+        return { ok: false, message: 'Rango de fecha invalido: "Desde" no puede ser mayor que "Hasta"' };
       }
 
       return { ok: true };
@@ -1180,7 +1348,7 @@ async function syncQueue() {
     function applyFilters() {
       const dateValidation = validateSoldadaDateRange();
       if (!dateValidation.ok) {
-        showToast(dateValidation.message || 'Rango de fecha inválido');
+        showToast(dateValidation.message || 'Rango de fecha invalido');
         return;
       }
 
@@ -1313,6 +1481,7 @@ async function syncQueue() {
         row.style.opacity = '1';
 
       });
+      renderMainList();
 
       if (currentDetailArea !== null) {
 
@@ -1324,7 +1493,7 @@ async function syncQueue() {
 
         document.getElementById('ds-pulgadas').textContent = totalDiam.toLocaleString('es-AR',{minimumFractionDigits:2});
 
-        document.getElementById('ds-soldadas').textContent = juntas.filter(j=>j.status==='ok').length;
+        document.getElementById('ds-soldadas').textContent = juntas.filter(j=>j.status==='pending').reduce((s,j)=>s + parseFloat(j.diam), 0).toLocaleString('es-AR',{minimumFractionDigits:2});
 
         document.getElementById('detailList').innerHTML    = renderDetailListContent(currentDetailArea);
 
@@ -1346,19 +1515,22 @@ async function syncQueue() {
 
       const totalDiam = filtered.reduce((s, j) => s + parseFloat(j.diam), 0).toFixed(2);
 
-      const soldadas  = filtered.filter(j => j.status === 'ok').length;
+      const pendientes = filtered.filter(j => j.status === 'pending').reduce((s, j) => s + parseFloat(j.diam), 0);
 
       const lineas    = [...new Set(filtered.map(j => j.linea))].length;
 
   
 
       document.getElementById('detailAreaCode').textContent = code;
+      const dsSold = document.getElementById('ds-soldadas');
+      if (dsSold) dsSold.textContent = pendientes.toLocaleString('es-AR',{minimumFractionDigits:2});
 
       document.getElementById('detailAreaSub').textContent  = `${filtered.length} juntas · ${lineas} líneas · ${parseFloat(totalDiam).toLocaleString('es-AR',{minimumFractionDigits:2})}"`;
 
   
 
       document.getElementById('detailList').innerHTML = renderDetailListContent(code, activeFilters);
+      document.getElementById('detailAreaSub').textContent  = `${filtered.length} juntas · ${lineas} lineas · ${parseFloat(totalDiam).toLocaleString('es-AR',{minimumFractionDigits:2})}"`;
 
       document.getElementById('detailScreen').classList.add('active');
 
@@ -1419,6 +1591,13 @@ async function syncQueue() {
       document.getElementById('ef-junta').textContent   = j.junta;
 
       document.getElementById('ef-diam').textContent    = j.diam;
+      const efSch = document.getElementById('ef-sch'); if (efSch) efSch.textContent = j.sch || '-';
+      const efTipo = document.getElementById('ef-tipo'); if (efTipo) efTipo.textContent = j.tipo || '-';
+      const efClase = document.getElementById('ef-clase'); if (efClase) efClase.textContent = j.clase || '-';
+      const efFactor = document.getElementById('ef-factor'); if (efFactor) efFactor.textContent = j.factor || '-';
+      const efSpoolFecha = document.getElementById('ef-spool-fecha'); if (efSpoolFecha) efSpoolFecha.textContent = isMissingDateValue(j.spoolFecha) ? 'Sin fecha' : j.spoolFecha;
+      const efCanista = document.getElementById('ef-canista'); if (efCanista) efCanista.textContent = j.canista || '-';
+      const efSpoolCompleto = document.getElementById('ef-spool-completo'); if (efSpoolCompleto) efSpoolCompleto.textContent = normalizeSpoolCompleto(j.spoolCompleto);
 
       document.getElementById('ef-fecha').textContent   = j.fecha === '—' ? 'Sin fecha' : j.fecha;
 
@@ -1437,6 +1616,8 @@ async function syncQueue() {
       document.getElementById('ef-hoja').textContent    = j.hoja;
 
       document.getElementById('ef-piping').textContent  = j.piping;
+      document.getElementById('editJuntaId').textContent  = `Junta ${j.junta} · Spool ${j.spool}`;
+      document.getElementById('editJuntaSub').textContent = `AREA ${j.area} · LINEA ${j.linea}`;
 
   
 
@@ -1444,7 +1625,7 @@ async function syncQueue() {
 
         const el = document.getElementById(eid);
 
-        el.classList.toggle('empty', el.textContent === 'Sin fecha' || el.textContent === 'sin identificación');
+        el.classList.toggle('empty', el.textContent === 'Sin fecha' || el.textContent === 'sin identificacion');
 
       });
 
@@ -1457,6 +1638,7 @@ async function syncQueue() {
   
 
       currentQRData = j;
+      debugLog(`OPEN_EDIT ${j.id} status=${j.status} STATUS=${j.STATUS} spoolCompleto=${j.spoolCompleto} spoolCompletoRaw=${j['Spool Completo']}`);
 
       const qrText = `JUNTA:${j.id}|AREA:${j.area}|LINEA:${j.linea}|SPOOL:${j.spool}|N:${j.junta}|DIAM:${j.diam}`;
 
@@ -1904,6 +2086,10 @@ async function syncQueue() {
 
         setTimeout(() => {
 
+          resultEl.style.display = 'none';
+
+          resultEl.innerHTML = '';
+
           openJuntaFromQR(found.id);
 
         }, 800);
@@ -1936,36 +2122,6 @@ async function syncQueue() {
 
   
 
-    function openJuntaFromQR(id) {
-
-      const found = JUNTAS.find(j => j.id === id);
-
-      if (!found) {
-
-        showToast('No se encontró la junta ' + id);
-
-        return;
-
-      }
-
-      closeQRScanner();
-
-      const resultEl = document.getElementById('qrScanResult');
-
-      if (resultEl) {
-
-        resultEl.style.display = 'none';
-
-        resultEl.innerHTML = '';
-
-      }
-
-      openDetail(found.area);
-
-      setTimeout(() => openEdit(found.id), 400);
-
-    }
-
     function searchByQRId() {
 
       const input = document.getElementById('qrManualInput').value.trim();
@@ -1990,23 +2146,13 @@ async function syncQueue() {
 
           Área ${found.area} · L° ${found.linea} · Spool ${found.spool} · Junta ${found.junta}<br><br>
 
-          <button id="qrOpenFoundBtn"
+          <span onclick="openJuntaFromQR('${found.id}')"
 
-            type="button"
+            style="display:inline-block;margin-top:4px;background:#2E7D32;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;">
 
-            style="display:inline-block;margin-top:4px;background:#2E7D32;color:#fff;padding:6px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;">
+            → Abrir junta
 
-            Abrir junta
-
-          </button>`;
-
-        const openBtn = document.getElementById('qrOpenFoundBtn');
-
-        if (openBtn) {
-
-          openBtn.addEventListener('click', () => openJuntaFromQR(found.id), { once: true });
-
-        }
+          </span>`;
 
       } else {
 
@@ -2112,6 +2258,225 @@ async function syncQueue() {
 
     let editingJuntaId = null;
 
+    function isSpoolCompletoEnabled(value) {
+      return normalizeSpoolCompleto(value) === 'Si';
+    }
+
+    function injectAfter(referenceNode, html) {
+      if (!referenceNode || referenceNode.dataset.injectedAfter) return null;
+      referenceNode.insertAdjacentHTML('afterend', html);
+      referenceNode.dataset.injectedAfter = 'true';
+      return referenceNode.nextElementSibling;
+    }
+
+    function ensureExtendedFormFields() {
+      const formSections = Array.from(document.querySelectorAll('.form-section-title'));
+      const identTitle = formSections.find(el => el.textContent.toLowerCase().includes('ident'));
+      const soldTitle = formSections.find(el => el.textContent.toLowerCase().includes('sold'));
+      const diamInput = document.getElementById('fi-diam');
+
+      if (diamInput && !document.getElementById('fi-sch')) {
+        const diamGroup = diamInput.closest('.form-group');
+        injectAfter(diamGroup, `
+          <div class="form-row-2 form-extra-ident">
+            <div class="form-group">
+              <label class="form-label">Sch</label>
+              <input class="form-input" id="fi-sch" placeholder="Ej: 100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo</label>
+              <input class="form-input" id="fi-tipo" placeholder="Ej: CS">
+            </div>
+          </div>
+          <div class="form-row-2 form-extra-ident">
+            <div class="form-group">
+              <label class="form-label">Clase</label>
+              <input class="form-input" id="fi-clase" placeholder="Ej: A">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Factor</label>
+              <input class="form-input" id="fi-factor" placeholder="Ej: 1.0">
+            </div>
+          </div>
+        `);
+      }
+
+      if (soldTitle && !document.getElementById('fi-spool-fecha')) {
+        soldTitle.insertAdjacentHTML('beforebegin', `
+          <div class="form-section-title form-section-spool">Construccion de Spool</div>
+          <div class="form-group">
+            <label class="form-label">Fecha Spool</label>
+            <input class="form-input" id="fi-spool-fecha" type="date" title="Fecha Spool">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">Canista</label>
+              <input class="form-input" id="fi-canista" placeholder="Ej: C01">
+            </div>
+            <div class="form-group form-check-row">
+              <label class="form-check-label" for="fi-spool-completo">Spool Completo</label>
+              <label class="form-check-inline">
+                <input class="form-checkbox" id="fi-spool-completo" type="checkbox">
+                <span>Si</span>
+              </label>
+            </div>
+          </div>
+        `);
+      }
+
+      if (soldTitle && !document.getElementById('fi-rechazada')) {
+        const fechaInput = document.getElementById('fi-fecha');
+        const fechaGroup = fechaInput ? fechaInput.closest('.form-group') : null;
+        injectAfter(fechaGroup, `
+          <div class="form-group form-check-row">
+            <label class="form-check-label" for="fi-rechazada">Status Rechazada</label>
+            <label class="form-check-inline">
+              <input class="form-checkbox" id="fi-rechazada" type="checkbox">
+              <span>Si</span>
+            </label>
+          </div>
+        `);
+      }
+
+      if (identTitle) identTitle.textContent = 'Identificacion';
+      if (soldTitle) soldTitle.textContent = 'Soldadura';
+    }
+
+    function ensureExtendedDetailFields() {
+      const editScroll = document.querySelector('#editScreen .edit-scroll');
+      const identCard = document.querySelector('#editScreen .fields-card');
+      if (!editScroll || !identCard) return;
+
+      if (!document.getElementById('ef-sch')) {
+        identCard.insertAdjacentHTML('beforeend', `
+          <div class="field-row editable"><span class="field-label">SCH</span><span class="field-value" id="ef-sch">-</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="field-row editable"><span class="field-label">TIPO</span><span class="field-value" id="ef-tipo">-</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="field-row editable"><span class="field-label">CLASE</span><span class="field-value" id="ef-clase">-</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="field-row editable"><span class="field-label">FACTOR</span><span class="field-value" id="ef-factor">-</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        `);
+      }
+
+      if (!document.getElementById('ef-spool-fecha')) {
+        const spoolCard = document.createElement('div');
+        spoolCard.className = 'fields-card';
+        spoolCard.style.animationDelay = '.045s';
+        spoolCard.innerHTML = `
+          <div class="fields-card-title">Construccion de Spool</div>
+          <div class="field-row editable"><span class="field-label">FECHA SPOOL</span><span class="field-value" id="ef-spool-fecha">Sin fecha</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="field-row editable"><span class="field-label">CANISTA</span><span class="field-value" id="ef-canista">-</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="field-row editable"><span class="field-label">SPOOL COMPLETO</span><span class="field-value" id="ef-spool-completo">No</span><svg class="field-edit-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        `;
+        editScroll.insertBefore(spoolCard, editScroll.children[1] || null);
+      }
+    }
+
+    function ensureStatsScreen() {
+      const dashboardPanel = document.querySelector('.dashboard-panel');
+      const mainBottomNav = document.querySelector('.phone > .bottom-nav');
+      if (!dashboardPanel || !mainBottomNav) return;
+
+      if (!document.getElementById('statsScreen')) {
+        const screen = document.createElement('div');
+        screen.className = 'screen';
+        screen.id = 'statsScreen';
+        screen.innerHTML = `
+          <div class="detail-header">
+            <div class="detail-topbar">
+              <button class="back-btn" onclick="closeStats()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+            </div>
+            <div class="detail-area-hero">
+              <div class="detail-area-label">ESTADISTICAS</div>
+              <div class="detail-area-code">Resumen General</div>
+              <div class="detail-area-sub">Pulgadas, estados y produccion</div>
+            </div>
+          </div>
+          <div class="stats-screen-scroll"></div>
+          <div class="bottom-nav">
+            <div class="nav-item" onclick="closeStats()"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="nav-label">Menu</span></div>
+            <div class="nav-item active"><svg viewBox="0 0 24 24"><line x1="4" y1="19" x2="4" y2="10"/><line x1="12" y1="19" x2="12" y2="5"/><line x1="20" y1="19" x2="20" y2="13"/></svg><span class="nav-label">Estadisticas</span></div>
+            <div class="nav-item" onclick="openQRScanner()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span class="nav-label">QR</span></div>
+          </div>
+        `;
+        document.body.appendChild(screen);
+        screen.querySelector('.stats-screen-scroll').appendChild(dashboardPanel);
+      }
+
+      if (!document.getElementById('mainStatsNavItem')) {
+        const statsNav = document.createElement('div');
+        statsNav.className = 'nav-item';
+        statsNav.id = 'mainStatsNavItem';
+        statsNav.setAttribute('onclick', 'openStats()');
+        statsNav.innerHTML = `<svg viewBox="0 0 24 24"><line x1="4" y1="19" x2="4" y2="10"/><line x1="12" y1="19" x2="12" y2="5"/><line x1="20" y1="19" x2="20" y2="13"/></svg><span class="nav-label">Estadisticas</span>`;
+        const qrItem = Array.from(mainBottomNav.querySelectorAll('.nav-item')).find(item => item.textContent.toLowerCase().includes('qr'));
+        mainBottomNav.insertBefore(statsNav, qrItem || null);
+      }
+    }
+
+    function normalizeStaticTexts() {
+      document.title = 'MENU - Gestion de Juntas';
+      const subtitle = document.querySelector('.app-subtitle');
+      if (subtitle) subtitle.innerHTML = `SEGUIMIENTO DE SOLDADURA <span style="font-size:8px;opacity:0.5;margin-left:5px">v1.3.12</span>`;
+      const mainSearch = document.getElementById('mainSearchInput');
+      if (mainSearch) mainSearch.placeholder = 'Buscar por linea...';
+      const detailSearch = document.getElementById('detailSearchInput');
+      if (detailSearch) detailSearch.placeholder = 'Buscar por spool...';
+      const syncNowBtn = document.getElementById('syncNowBtn');
+      if (syncNowBtn) syncNowBtn.title = 'Sincronizar ahora';
+      const chartTitles = document.querySelectorAll('.chart-title');
+      if (chartTitles[0]) chartTitles[0].textContent = 'Pulgadas Soldadas vs Pendientes';
+      if (chartTitles[1]) chartTitles[1].textContent = 'Pulgadas Soldadas por Fecha';
+      const kpiLabels = document.querySelectorAll('.dashboard-kpi .kpi-label');
+      if (kpiLabels[0]) kpiLabels[0].textContent = 'Total Pulgadas';
+      if (kpiLabels[1]) kpiLabels[1].textContent = 'Pulgadas Soldadas';
+      if (kpiLabels[2]) kpiLabels[2].textContent = 'Juntas';
+      if (kpiLabels[3]) kpiLabels[3].textContent = 'Pulgadas Pendientes';
+      const dashboardTitle = document.querySelector('.dashboard-title');
+      if (dashboardTitle) dashboardTitle.textContent = 'Estadisticas';
+      const statLabels = document.querySelectorAll('.stat-card .stat-label');
+      if (statLabels[0]) statLabels[0].textContent = 'Areas';
+      if (statLabels[1]) statLabels[1].textContent = 'Total Pulgadas';
+      if (statLabels[2]) statLabels[2].textContent = 'Pulg. por Soldar';
+      const sectionTitle = document.querySelector('.section-title');
+      if (sectionTitle) sectionTitle.textContent = 'RESUMEN DE AREAS';
+      const detailTitles = document.querySelectorAll('#editScreen .fields-card-title');
+      if (detailTitles[0]) detailTitles[0].textContent = 'Identificacion';
+      if (detailTitles[1]) detailTitles[1].textContent = 'Construccion de Spool';
+      if (detailTitles[2]) detailTitles[2].textContent = 'Soldadura';
+      if (detailTitles[3]) detailTitles[3].textContent = 'Material / Colada';
+      if (detailTitles[4]) detailTitles[4].textContent = 'Documentacion';
+      if (detailTitles[5]) detailTitles[5].textContent = 'Codigo QR';
+      const detailLabels = document.querySelectorAll('#editScreen .field-label');
+      const detailLabelTexts = ['AREA', 'LINEA N°', 'SPOOL', 'JUNTA N°', 'DIAMETRO', 'SCH', 'TIPO', 'CLASE', 'FACTOR', 'FECHA SPOOL', 'CANISTA', 'SPOOL COMPLETO', 'FECHA DE SOLDADURA', 'RAIZ', 'RELL-TERM-', 'CODIGO / COLADA', 'CODIGO / COLADA_16', 'N° de Documento', 'Rev.', 'Hoja N°', 'Piping Class'];
+      detailLabelTexts.forEach((text, index) => { if (detailLabels[index]) detailLabels[index].textContent = text; });
+      const formLabels = document.querySelectorAll('#formModal .form-label');
+      const formLabelTexts = ['Area *', 'Linea N° *', 'Spool *', 'Junta N° *', 'Pulgadas *', 'Sch', 'Tipo', 'Clase', 'Factor', 'Fecha Spool', 'Canista', 'Fecha de Soldadura', 'Raiz', 'Rell-Term-', 'Codigo / Colada', 'Codigo / Colada_16', 'N° de Documento', 'Rev.', 'Hoja N°', 'Piping Class'];
+      formLabelTexts.forEach((text, index) => { if (formLabels[index]) formLabels[index].textContent = text; });
+      const navLabels = Array.from(document.querySelectorAll('.bottom-nav .nav-label'));
+      navLabels.forEach((label) => {
+        if (label.textContent.toLowerCase().includes('men')) label.textContent = 'Menu';
+        if (label.textContent.toLowerCase().includes('fil')) label.textContent = 'Filtrar';
+        if (label.textContent.toLowerCase().includes('vol')) label.textContent = 'Volver';
+      });
+    }
+
+    function openStats() {
+      const screen = document.getElementById('statsScreen');
+      if (screen) screen.classList.add('active');
+    }
+
+    function closeStats() {
+      const screen = document.getElementById('statsScreen');
+      if (screen) screen.classList.remove('active');
+    }
+
+    function openJuntaFromQR(id) {
+      const found = JUNTAS.find(j => j.id === id);
+      if (!found) return;
+      closeQRScanner();
+      openDetail(found.area);
+      setTimeout(() => openEdit(found.id), 400);
+    }
+
   
 
     function openFormNew() {
@@ -2135,6 +2500,13 @@ async function syncQueue() {
       document.getElementById('fi-junta').value   = '';
 
       document.getElementById('fi-diam').value    = '';
+      const fiSch = document.getElementById('fi-sch'); if (fiSch) fiSch.value = '';
+      const fiTipo = document.getElementById('fi-tipo'); if (fiTipo) fiTipo.value = '';
+      const fiClase = document.getElementById('fi-clase'); if (fiClase) fiClase.value = '';
+      const fiFactor = document.getElementById('fi-factor'); if (fiFactor) fiFactor.value = '';
+      const fiSpoolFecha = document.getElementById('fi-spool-fecha'); if (fiSpoolFecha) fiSpoolFecha.value = '';
+      const fiCanista = document.getElementById('fi-canista'); if (fiCanista) fiCanista.value = '';
+      const fiSpoolCompleto = document.getElementById('fi-spool-completo'); if (fiSpoolCompleto) fiSpoolCompleto.checked = false;
 
       document.getElementById('fi-fecha').value   = '';
       const rech = document.getElementById('fi-rechazada');
@@ -2189,6 +2561,12 @@ async function syncQueue() {
       document.getElementById('fi-junta').value   = j.junta;
 
       document.getElementById('fi-diam').value    = j.diam;
+      const fiSch = document.getElementById('fi-sch'); if (fiSch) fiSch.value = j.sch || '';
+      const fiTipo = document.getElementById('fi-tipo'); if (fiTipo) fiTipo.value = j.tipo || '';
+      const fiClase = document.getElementById('fi-clase'); if (fiClase) fiClase.value = j.clase || '';
+      const fiFactor = document.getElementById('fi-factor'); if (fiFactor) fiFactor.value = j.factor || '';
+      const fiCanista = document.getElementById('fi-canista'); if (fiCanista) fiCanista.value = j.canista || '';
+      const fiSpoolCompleto = document.getElementById('fi-spool-completo'); if (fiSpoolCompleto) fiSpoolCompleto.checked = isSpoolCompletoEnabled(j.spoolCompleto);
 
       if (j.fecha && j.fecha !== '—') {
 
@@ -2208,13 +2586,23 @@ async function syncQueue() {
       const rech = document.getElementById('fi-rechazada');
       if (rech) rech.checked = (j.rechazada === true || j.status === 'nok'); }
 
+      if (!isMissingDateValue(j.spoolFecha)) {
+        const partsSpool = j.spoolFecha.split('/');
+        if (partsSpool.length === 3 && document.getElementById('fi-spool-fecha')) {
+          const yrSpool = partsSpool[2].length === 2 ? '20' + partsSpool[2] : partsSpool[2];
+          document.getElementById('fi-spool-fecha').value = `${yrSpool}-${partsSpool[1].padStart(2,'0')}-${partsSpool[0].padStart(2,'0')}`;
+        }
+      } else if (document.getElementById('fi-spool-fecha')) {
+        document.getElementById('fi-spool-fecha').value = '';
+      }
+
       document.getElementById('fi-raiz').value    = j.raiz === '—' ? '' : j.raiz;
 
       document.getElementById('fi-rellterm').value= j.rellterm === '—' ? '' : j.rellterm;
 
       document.getElementById('fi-colada').value  = j.colada === '—' ? '' : j.colada;
 
-      document.getElementById('fi-colada16').value= j.colada16 === 'sin identificación' ? '' : j.colada16;
+      document.getElementById('fi-colada16').value= j.colada16 === 'sin identificacion' ? '' : j.colada16;
 
       document.getElementById('fi-doc').value     = j.doc === '—' ? '' : j.doc;
 
@@ -2268,7 +2656,7 @@ async function syncQueue() {
 
       if (isNaN(diamVal) || diamVal <= 0) {
 
-        errEl.textContent = 'Ingresá un diámetro válido (mayor a 0).';
+        errEl.textContent = 'Ingres? un di?metro v?lido (mayor a 0).';
 
         errEl.style.display = 'block';
 
@@ -2282,6 +2670,7 @@ async function syncQueue() {
 
       const fechaRaw = document.getElementById('fi-fecha').value;
       const rechazada = document.getElementById('fi-rechazada') ? document.getElementById('fi-rechazada').checked : false;
+      const spoolFechaRaw = document.getElementById('fi-spool-fecha') ? document.getElementById('fi-spool-fecha').value : '';
 
       let fecha = '—';
 
@@ -2292,10 +2681,16 @@ async function syncQueue() {
         fecha = `${p[2].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[0]}`;
 
       }
+      let spoolFecha = '';
+      if (spoolFechaRaw && spoolFechaRaw.includes('-')) {
+        const pSpool = spoolFechaRaw.split('-');
+        spoolFecha = `${pSpool[2].padStart(2,'0')}/${pSpool[1].padStart(2,'0')}/${pSpool[0]}`;
+      }
 
   
 
       const proposedId = `J-${area}-${spool}-${junta}`;
+      const previousId = editingJuntaId;
 
       let finalId = formMode === 'edit' ? editingJuntaId : proposedId;
 
@@ -2331,13 +2726,28 @@ async function syncQueue() {
 
         fecha, 
 
+        sch:      document.getElementById('fi-sch') ? document.getElementById('fi-sch').value.trim() : '',
+
+        tipo:     document.getElementById('fi-tipo') ? document.getElementById('fi-tipo').value.trim() : '',
+
+        clase:    document.getElementById('fi-clase') ? document.getElementById('fi-clase').value.trim() : '',
+
+        factor:   document.getElementById('fi-factor') ? document.getElementById('fi-factor').value.trim() : '',
+
+        spoolFecha,
+
+        canista:  document.getElementById('fi-canista') ? document.getElementById('fi-canista').value.trim() : '',
+
+        spoolCompleto: document.getElementById('fi-spool-completo') && document.getElementById('fi-spool-completo').checked ? 'Si' : 'No',
+        'Spool Completo': document.getElementById('fi-spool-completo') && document.getElementById('fi-spool-completo').checked ? 'Si' : 'No',
+
         raiz: document.getElementById('fi-raiz').value.trim() || '-',
 
         rellterm: document.getElementById('fi-rellterm').value.trim() || '-',
 
         colada:   document.getElementById('fi-colada').value.trim()   || '-',
 
-        colada16: document.getElementById('fi-colada16').value.trim() || 'sin identificación',
+        colada16: document.getElementById('fi-colada16').value.trim() || 'sin identificacion',
 
         doc:      document.getElementById('fi-doc').value.trim()      || '-',
 
@@ -2348,7 +2758,8 @@ async function syncQueue() {
         piping:   document.getElementById('fi-piping').value.trim()   || '-',
 
         rechazada: rechazada,
-        status:   deriveStatus(fecha, rechazada, formMode === 'edit' ? (currentQRData ? currentQRData.status : 'pending') : 'pending')
+        status:   deriveStatus(fecha, rechazada, ''),
+        STATUS:   deriveStatus(fecha, rechazada, '')
 
       };
 
@@ -2370,6 +2781,9 @@ async function syncQueue() {
 
       saveToLocalStorage();
 
+      if (formMode === 'edit' && proposedId !== previousId && currentQRData) {
+        syncWithSheets("delete", { ...currentQRData, id: previousId });
+      }
       syncWithSheets("save", record);
       recordHistory('save', record);
       updateDashboard();
@@ -2463,6 +2877,7 @@ async function syncQueue() {
       const areas = [...new Set(JUNTAS.map(j => j.area))].sort();
 
       const totalAll = JUNTAS.reduce((s,j) => s + (parseFloat(j.diam) || 0), 0);
+      const pendingDisplaySum = JUNTAS.filter(j => j.status === 'pending').reduce((s,j) => s + (parseFloat(j.diam) || 0), 0);
 
       const pendingSum = JUNTAS.filter(j => j.fecha === '—' || !j.fecha).reduce((s,j) => s + (parseFloat(j.diam) || 0), 0);
 
@@ -2480,7 +2895,7 @@ async function syncQueue() {
 
       if (stat2) stat2.textContent = totalAll >= 1000 ? (totalAll/1000).toFixed(1)+'K' : formatNum(totalAll);
 
-      if (stat3) stat3.textContent = pendingSum >= 1000 ? (pendingSum/1000).toFixed(1)+'K' : formatNum(pendingSum);
+      if (stat3) stat3.textContent = pendingDisplaySum >= 1000 ? (pendingDisplaySum/1000).toFixed(1)+'K' : formatNum(pendingDisplaySum);
 
       let html = `
 
@@ -2620,8 +3035,8 @@ async function syncQueue() {
       }
 
       if (!navigator.onLine) {
-        showToast('Sin conexión. Se sincroniza cuando vuelva internet');
-        setSyncStatus('Sin conexión (modo offline)', 'warn');
+        showToast('Sin conexion. Se sincroniza cuando vuelva internet');
+        setSyncStatus('Sin conexion (modo offline)', 'warn');
         return;
       }
 
@@ -2631,7 +3046,7 @@ async function syncQueue() {
         await initData();
         updateDashboard();
         setSyncStatus('Sincronizado...', 'ok');
-        showToast('Sincronización completada');
+        showToast('Sincronizacion completada');
       } catch (err) {
         console.error('Error en sincronizacion manual:', err);
         setSyncStatus('Error en sincronizacion manual', 'err');
@@ -2704,191 +3119,6 @@ async function syncQueue() {
       return hasFilters ? applyFiltersToData(JUNTAS, activeFilters) : JUNTAS;
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function buildPrintFilterSummary(filters) {
-      const entries = [];
-      if (filters.area?.length) entries.push(`Áreas: ${filters.area.join(', ')}`);
-      if (filters.linea?.length) entries.push(`Líneas: ${filters.linea.join(', ')}`);
-      if (filters.spool?.length) entries.push(`Spools: ${filters.spool.join(', ')}`);
-      if (filters.junta?.length) entries.push(`Juntas: ${filters.junta.join(', ')}`);
-      if (filters.raiz?.length) entries.push(`Soldador: ${filters.raiz.join(', ')}`);
-      if (filters.soldada) entries.push(`Soldada: ${filters.soldada}`);
-      if (filters.fechaDesde) entries.push(`Desde: ${filters.fechaDesde}`);
-      if (filters.fechaHasta) entries.push(`Hasta: ${filters.fechaHasta}`);
-      return entries.length ? entries.join(' | ') : 'Sin filtros activos';
-    }
-
-    function buildQRCodeDataUrl(junta) {
-      const canvas = document.createElement('canvas');
-      const qrText = `JUNTA:${junta.id}|AREA:${junta.area}|LINEA:${junta.linea}|SPOOL:${junta.spool}|N:${junta.junta}|DIAM:${junta.diam}`;
-      new QRious({
-        element: canvas,
-        value: qrText,
-        size: 180,
-        level: 'H',
-        background: '#ffffff',
-        foreground: '#0a1628'
-      });
-      return canvas.toDataURL('image/png');
-    }
-
-    function printFilteredQRs() {
-      try {
-        if (!window.QRious) {
-          showToast('No se pudieron generar los QR para imprimir');
-          return;
-        }
-
-        const list = [...getDashboardDataSource()].sort((a, b) => {
-          return String(a.area).localeCompare(String(b.area), 'es', { numeric: true })
-            || String(a.linea).localeCompare(String(b.linea), 'es', { numeric: true })
-            || String(a.spool).localeCompare(String(b.spool), 'es', { numeric: true })
-            || String(a.junta).localeCompare(String(b.junta), 'es', { numeric: true });
-        });
-
-        if (!list.length) {
-          showToast('No hay juntas para imprimir con los filtros actuales');
-          return;
-        }
-
-        const cardsHtml = list.map((junta) => {
-          const qrDataUrl = buildQRCodeDataUrl(junta);
-          const fecha = hasWeldDate(junta.fecha) ? junta.fecha : 'Sin fecha';
-          const soldador = junta.raiz && junta.raiz !== '—' ? junta.raiz : 'Sin soldador';
-          return `
-            <article class="print-card">
-              <div class="print-card-head">
-                <div class="print-card-id">${escapeHtml(junta.id)}</div>
-              </div>
-              <img class="print-qr" src="${qrDataUrl}" alt="QR ${escapeHtml(junta.id)}">
-              <div class="print-meta">Línea ${escapeHtml(junta.linea)}</div>
-              <div class="print-meta">Spool ${escapeHtml(junta.spool)} · Junta ${escapeHtml(junta.junta)}</div>
-              <div class="print-meta">Soldador ${escapeHtml(soldador)} · ${escapeHtml(fecha)}</div>
-            </article>`;
-        }).join('');
-
-        const printMarkup = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listado QR</title>
-  <style>
-    :root {
-      --ink: #0a1628;
-      --muted: #546e7a;
-      --line: #cfd8dc;
-      --panel: #f7fbff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      color: var(--ink);
-      background: #fff;
-    }
-    .page {
-      padding: 8mm;
-    }
-    .print-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6mm;
-    }
-    .print-card {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px;
-      background: var(--panel);
-      break-inside: avoid;
-      page-break-inside: avoid;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      min-height: 84mm;
-    }
-    .print-card-head {
-      width: 100%;
-      margin-bottom: 6px;
-    }
-    .print-card-id {
-      font-size: 15px;
-      font-weight: 700;
-    }
-    .print-qr {
-      width: 42mm;
-      height: 42mm;
-      object-fit: contain;
-      background: #fff;
-      padding: 4px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      margin-bottom: 8px;
-    }
-    .print-meta {
-      font-size: 10px;
-      line-height: 1.45;
-      margin-top: 2px;
-    }
-    @page {
-      size: A4 portrait;
-      margin: 12mm;
-    }
-    @media print {
-      .page {
-        padding: 0;
-      }
-    }
-  </style>
-</head>
-<body>
-  <main class="page">
-    <section class="print-grid">
-      ${cardsHtml}
-    </section>
-  </main>
-</body>
- </html>`;
-
-        const printWindow = window.open('', '_blank', 'width=1100,height=800');
-        if (!printWindow) {
-          showToast('Permití ventanas emergentes para imprimir');
-          return;
-        }
-
-        printWindow.document.open();
-        printWindow.document.write(printMarkup);
-        printWindow.document.close();
-        printWindow.focus();
-
-        const triggerPrint = () => {
-          try {
-            printWindow.print();
-          } catch (err) {
-            console.error('No se pudo abrir la impresión:', err);
-          }
-        };
-
-        if (printWindow.document.readyState === 'complete') {
-          setTimeout(triggerPrint, 250);
-        } else {
-          printWindow.onload = () => setTimeout(triggerPrint, 250);
-        }
-      } catch (err) {
-        console.error('Error al generar la vista imprimible:', err);
-        showToast('No se pudo generar el listado para imprimir');
-      }
-    }
-
     function parseFechaToDate(fecha) {
       if (!hasWeldDate(fecha)) return null;
       if (fecha.includes('/')) {
@@ -2951,7 +3181,7 @@ async function syncQueue() {
       if (kPending) kPending.textContent = summary.pendiente.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
       if (chartEstados) {
-        chartEstados.data.labels = ['Pulgadas soldado', 'Pulgadas pendiente'];
+        chartEstados.data.labels = ['Pulgadas soldadas', 'Pulgadas pendientes'];
         chartEstados.data.datasets[0].data = [summary.soldado, summary.pendiente];
         chartEstados.data.datasets[0].backgroundColor = ['#2E7D32', '#FFB300'];
         chartEstados.update();
@@ -2974,7 +3204,7 @@ async function syncQueue() {
       chartEstados = new Chart(elEstados, {
         type: 'doughnut',
         data: {
-          labels: ['Pulgadas soldado', 'Pulgadas pendiente'],
+          labels: ['Pulgadas soldadas', 'Pulgadas pendientes'],
           datasets: [{
             data: [0, 0],
             backgroundColor: ['#2E7D32', '#FFB300']
@@ -3052,6 +3282,10 @@ async function syncQueue() {
         // 2. UI Components second
 
         initFilterChips();
+        ensureExtendedFormFields();
+        ensureExtendedDetailFields();
+        ensureStatsScreen();
+        normalizeStaticTexts();
 
         const btnLimpiar = document.getElementById('btnLimpiar');
 
@@ -3070,8 +3304,8 @@ async function syncQueue() {
         initData();
         initDashboard();
         if (navigator.onLine) syncQueue();
-        window.addEventListener('online', () => { setSyncStatus('Conexión restaurada. Sincronizando...', 'warn'); syncQueue(); });
-        window.addEventListener('offline', () => setSyncStatus('Sin conexión (modo offline)', 'warn'));
+        window.addEventListener('online', () => { setSyncStatus('Conexion restaurada. Sincronizando...', 'warn'); syncQueue(); });
+        window.addEventListener('offline', () => setSyncStatus('Sin conexion (modo offline)', 'warn'));
         setInterval(() => { if (navigator.onLine) syncQueue(); }, 30000);
 
       } catch (err) {
@@ -3132,7 +3366,6 @@ async function syncQueue() {
 
     window.refreshMain = refreshMain;
     window.syncNow = syncNow;
-    window.printFilteredQRs = printFilteredQRs;
 
     window.toggleEditMode = toggleEditMode;
 
