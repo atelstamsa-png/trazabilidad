@@ -730,7 +730,8 @@
 
     display: flex; flex-direction: column; align-items: center; gap: 4px;
 
-    cursor: pointer; padding: 4px 18px;
+    cursor: pointer; padding: 4px 10px;
+    flex: 1;
 
     border-radius: 10px;
 
@@ -755,6 +756,44 @@
   }
 
   .nav-item.active .nav-label { color: var(--blue-glow); }
+
+  .stats-screen-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 20px 100px;
+  }
+
+  .stats-screen-scroll .dashboard-panel {
+    margin: 0;
+  }
+
+  .form-check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .form-check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--text-main);
+    font-size: 14px;
+  }
+
+  .form-check-label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .form-checkbox {
+    width: 18px;
+    height: 18px;
+  }
 
 
 
