@@ -697,6 +697,10 @@ async function syncQueue() {
       return String(value ?? '').trim();
     }
 
+    function toInlineJsString(value) {
+      return JSON.stringify(String(value ?? ''));
+    }
+
     function isTruthyValue(value) {
       return ['si', 'yes', 'true', '1', 'x', 'checked', 'ok'].includes(normalizeFieldKey(value));
     }
@@ -829,10 +833,11 @@ async function syncQueue() {
         byLinea[linea].forEach((j, idx) => {
 
           const delay = (idx * 0.04).toFixed(2);
+          const safeId = toInlineJsString(j.id);
 
           html += `
 
-          <div class="flat-row" style="animation-delay:${delay}s" onclick="openEdit('${j.id}')">
+          <div class="flat-row" style="animation-delay:${delay}s" onclick='openEdit(${safeId})'>
 
             <div class="flat-accent"></div>
 
@@ -1640,7 +1645,7 @@ async function syncQueue() {
       currentQRData = j;
       debugLog(`OPEN_EDIT ${j.id} status=${j.status} STATUS=${j.STATUS} spoolCompleto=${j.spoolCompleto} spoolCompletoRaw=${j['Spool Completo']}`);
 
-      const qrText = `JUNTA:${j.id}|AREA:${j.area}|LINEA:${j.linea}|SPOOL:${j.spool}|N:${j.junta}|DIAM:${j.diam}`;
+      const qrText = `AREA:${j.area}|LINEA:${j.linea}|SPOOL:${j.spool}|COST:${j.junta}|SOLDADOR:${j.raiz}`;
 
       setTimeout(() => drawQR(document.getElementById('qrPreview'), qrText, 3), 50);
 
@@ -1694,7 +1699,7 @@ async function syncQueue() {
 
       const j = currentQRData;
 
-      const qrText = `JUNTA:${j.id}|AREA:${j.area}|LINEA:${j.linea}|SPOOL:${j.spool}|N:${j.junta}|DIAM:${j.diam}`;
+      const qrText = `AREA:${j.area}|LINEA:${j.linea}|SPOOL:${j.spool}|COST:${j.junta}|SOLDADOR:${j.raiz}`;
 
       document.getElementById('qrJuntaLabel').textContent = `${j.area} · ${j.linea} · Spool ${j.spool} · Junta ${j.junta}`;
 
@@ -2044,7 +2049,7 @@ async function syncQueue() {
 
         j.id.toLowerCase() === idStr || 
 
-        (areaMatch && j.area === areaMatch[1] && data.includes(`SPOOL:${j.spool}`) && data.includes(`N:${j.junta}`)) ||
+        (areaMatch && j.area === areaMatch[1] && data.includes(`SPOOL:${j.spool}`) && (data.includes(`COST:${j.junta}`) || data.includes(`N:${j.junta}`))) ||
 
         // Extreme fallback: check if any ID is contained in the string
 
@@ -2135,6 +2140,7 @@ async function syncQueue() {
       resultEl.style.display = 'block';
 
       if (found) {
+        const safeFoundId = toInlineJsString(found.id);
 
         resultEl.style.background = '#E8F5E9';
 
@@ -2146,7 +2152,7 @@ async function syncQueue() {
 
           Área ${found.area} · L° ${found.linea} · Spool ${found.spool} · Junta ${found.junta}<br><br>
 
-          <span onclick="openJuntaFromQR('${found.id}')"
+          <span onclick='openJuntaFromQR(${safeFoundId})'
 
             style="display:inline-block;margin-top:4px;background:#2E7D32;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:600;font-family:'IBM Plex Sans',sans-serif;">
 
@@ -2409,6 +2415,15 @@ async function syncQueue() {
         statsNav.innerHTML = `<svg viewBox="0 0 24 24"><line x1="4" y1="19" x2="4" y2="10"/><line x1="12" y1="19" x2="12" y2="5"/><line x1="20" y1="19" x2="20" y2="13"/></svg><span class="nav-label">Estadisticas</span>`;
         const qrItem = Array.from(mainBottomNav.querySelectorAll('.nav-item')).find(item => item.textContent.toLowerCase().includes('qr'));
         mainBottomNav.insertBefore(statsNav, qrItem || null);
+      }
+      if (!document.getElementById('mainPrintNavItem')) {
+        const printNav = document.createElement('div');
+        printNav.className = 'nav-item';
+        printNav.id = 'mainPrintNavItem';
+        printNav.setAttribute('onclick', 'printFilteredQRs()');
+        printNav.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 9V4h12v5"/><rect x="6" y="14" width="12" height="7"/><rect x="4" y="9" width="16" height="7" rx="2"/><line x1="8" y1="17" x2="16" y2="17"/></svg><span class="nav-label">Imprimir</span>`;
+        const qrItem = Array.from(mainBottomNav.querySelectorAll('.nav-item')).find(item => item.textContent.toLowerCase().includes('qr'));
+        mainBottomNav.insertBefore(printNav, qrItem || null);
       }
     }
 
@@ -2689,7 +2704,7 @@ async function syncQueue() {
 
   
 
-      const proposedId = `J-${area}-${spool}-${junta}`;
+      const proposedId = `${area}-${linea}-${spool}-${junta}`;
       const previousId = editingJuntaId;
 
       let finalId = formMode === 'edit' ? editingJuntaId : proposedId;
@@ -3058,6 +3073,118 @@ async function syncQueue() {
 
     function toggleEditMode() { openFormEdit(); }
 
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function buildPrintQrDataUrl(junta) {
+      const canvas = document.createElement('canvas');
+      const qrText = `AREA:${junta.area}|LINEA:${junta.linea}|SPOOL:${junta.spool}|COST:${junta.junta}|SOLDADOR:${junta.raiz}`;
+      new QRious({
+        element: canvas,
+        value: qrText,
+        size: 220,
+        level: 'H',
+        background: '#ffffff',
+        foreground: '#0a1628'
+      });
+      return canvas.toDataURL('image/png');
+    }
+
+    function printFilteredQRs() {
+      try {
+        if (!window.QRious) {
+          showToast('No se pudieron generar los QR');
+          return;
+        }
+
+        const list = [...getDashboardDataSource()].sort((a, b) =>
+          String(a.area).localeCompare(String(b.area), 'es', { numeric: true }) ||
+          String(a.linea).localeCompare(String(b.linea), 'es', { numeric: true }) ||
+          String(a.spool).localeCompare(String(b.spool), 'es', { numeric: true }) ||
+          String(a.junta).localeCompare(String(b.junta), 'es', { numeric: true })
+        );
+
+        if (!list.length) {
+          showToast('No hay juntas para imprimir');
+          return;
+        }
+
+        const cardsHtml = list.map((junta) => `
+          <article class="print-card">
+            <img class="print-qr" src="${buildPrintQrDataUrl(junta)}" alt="QR ${escapeHtml(junta.id)}">
+            <div class="print-meta">Area ${escapeHtml(junta.area)}</div>
+            <div class="print-meta">Linea ${escapeHtml(junta.linea)}</div>
+            <div class="print-meta">Spool ${escapeHtml(junta.spool)} · Cost ${escapeHtml(junta.junta)}</div>
+            <div class="print-meta">Soldador ${escapeHtml(junta.raiz || '-')}</div>
+          </article>
+        `).join('');
+
+        const printWindow = window.open('', '_blank', 'width=1100,height=800');
+        if (!printWindow) {
+          showToast('Permiti ventanas emergentes para imprimir');
+          return;
+        }
+
+        printWindow.document.open();
+        printWindow.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Etiquetas QR</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #0a1628; background: #fff; }
+    .page { padding: 8mm; }
+    .print-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; }
+    .print-card {
+      border: 1px solid #cfd8dc;
+      border-radius: 12px;
+      padding: 10px;
+      background: #f7fbff;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 84mm;
+    }
+    .print-qr {
+      width: 42mm;
+      height: 42mm;
+      object-fit: contain;
+      background: #fff;
+      padding: 4px;
+      border: 1px solid #cfd8dc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .print-meta { font-size: 10px; line-height: 1.45; margin-top: 2px; }
+    @page { size: A4 portrait; margin: 12mm; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="print-grid">${cardsHtml}</section>
+  </main>
+</body>
+</html>`);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.onload = () => setTimeout(() => printWindow.print(), 250);
+      } catch (err) {
+        console.error('Error al imprimir QR:', err);
+        showToast('No se pudo generar la impresion');
+      }
+    }
+
   
 
     // --- TOAST ---
@@ -3366,6 +3493,7 @@ async function syncQueue() {
 
     window.refreshMain = refreshMain;
     window.syncNow = syncNow;
+    window.printFilteredQRs = printFilteredQRs;
 
     window.toggleEditMode = toggleEditMode;
 
